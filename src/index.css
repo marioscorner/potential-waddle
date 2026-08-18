@@ -1,0 +1,272 @@
+@import "@fontsource/dm-sans/400.css";
+@import "@fontsource/dm-sans/500.css";
+@import "@fontsource/dm-sans/600.css";
+@import "@fontsource/dm-sans/700.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Design System - Developer Portfolio Dark Theme */
+
+@layer base {
+  :root {
+    --background: 0 0% 7%;
+    --foreground: 0 0% 95%;
+
+    --card: 0 0% 11%;
+    --card-foreground: 0 0% 95%;
+
+    --popover: 0 0% 11%;
+    --popover-foreground: 0 0% 95%;
+
+    --primary: 336 100% 64%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 80%;
+
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 55%;
+
+    --accent: 336 100% 64%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
+    --ring: 336 100% 64%;
+
+    --radius: 1rem;
+
+    /* Custom tokens */
+    --gray-50: 0 0% 95%;
+    --gray-100: 0 0% 85%;
+    --gray-200: 0 0% 70%;
+    --gray-300: 0 0% 55%;
+    --gray-400: 0 0% 45%;
+    --gray-500: 0 0% 35%;
+    --gray-600: 0 0% 25%;
+    --gray-700: 0 0% 18%;
+    --gray-800: 0 0% 11%;
+    --gray-900: 0 0% 7%;
+
+    --sidebar-background: 0 0% 11%;
+    --sidebar-foreground: 0 0% 80%;
+    --sidebar-primary: 336 100% 64%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 15%;
+    --sidebar-accent-foreground: 0 0% 80%;
+    --sidebar-border: 0 0% 18%;
+    --sidebar-ring: 336 100% 64%;
+  }
+
+  .light {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 7%;
+
+    --card: 0 0% 98%;
+    --card-foreground: 0 0% 7%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 7%;
+
+    --primary: 336 100% 64%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 20%;
+
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+
+    --accent: 336 100% 64%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 336 100% 64%;
+
+    /* Custom tokens - Light theme */
+    --gray-50: 0 0% 7%;
+    --gray-100: 0 0% 15%;
+    --gray-200: 0 0% 25%;
+    --gray-300: 0 0% 35%;
+    --gray-400: 0 0% 45%;
+    --gray-500: 0 0% 55%;
+    --gray-600: 0 0% 70%;
+    --gray-700: 0 0% 85%;
+    --gray-800: 0 0% 95%;
+    --gray-900: 0 0% 98%;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 0 0% 20%;
+    --sidebar-primary: 336 100% 64%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 96%;
+    --sidebar-accent-foreground: 0 0% 20%;
+    --sidebar-border: 0 0% 90%;
+    --sidebar-ring: 336 100% 64%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    height: 100%;
+  }
+
+  body {
+    @apply text-foreground font-sans antialiased;
+    font-family: "DM Sans", system-ui, sans-serif;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  #root {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+  }
+}
+
+@layer components {
+  /* Bento Card Styles */
+  .bento-card {
+    @apply relative overflow-hidden rounded-xl border border-border bg-card p-3 transition-all duration-300;
+    background-color: hsl(var(--card)) !important;
+    backdrop-filter: none;
+    isolation: isolate;
+    z-index: 1;
+  }
+
+  .bento-card::before {
+    content: "";
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    background-color: hsl(var(--card));
+    border-radius: calc(var(--radius) + 2px);
+    z-index: -1;
+  }
+
+  .bento-card:hover {
+    @apply border-primary;
+    transform: translateY(-2px);
+  }
+
+  .bento-card-featured {
+    @apply relative overflow-hidden rounded-xl border border-border bg-card p-3 transition-all duration-300;
+    background-color: hsl(var(--card)) !important;
+    backdrop-filter: none;
+    isolation: isolate;
+    z-index: 1;
+  }
+
+  .bento-card-featured::before {
+    content: "";
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    background-color: hsl(var(--card));
+    border-radius: calc(var(--radius) + 2px);
+    z-index: -1;
+  }
+
+  .bento-card-featured:hover {
+    @apply border-primary;
+    transform: translateY(-2px);
+  }
+
+  /* Social Icon Button */
+  .social-icon-btn {
+    @apply inline-flex h-11 w-11 items-center justify-center rounded-xl border border-border bg-card text-muted-foreground transition-all duration-200;
+  }
+
+  .social-icon-btn:hover {
+    @apply border-primary/50 bg-primary/10 text-primary;
+  }
+
+  /* Primary Button */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-5 py-2.5 text-sm font-medium text-foreground transition-all duration-200;
+    min-height: 2.5rem;
+  }
+
+  .btn-primary:hover {
+    @apply border-primary text-primary;
+  }
+
+  /* Accent Button */
+  .btn-accent {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-all duration-200;
+    min-height: 2.5rem;
+  }
+
+  .btn-accent:hover {
+    @apply opacity-90;
+    transform: translateY(-1px);
+  }
+
+  /* Tech Stack Tag */
+  .tech-tag {
+    @apply inline-flex items-center gap-2 text-sm text-muted-foreground;
+  }
+
+  .tech-tag::before {
+    content: "";
+    @apply h-1.5 w-1.5 rounded-full bg-primary;
+  }
+
+  /* Section Label */
+  .section-label {
+    @apply text-xs font-medium uppercase tracking-wider;
+    color: hsl(var(--primary)) !important;
+    will-change: auto;
+  }
+
+  /* Footer con fondo opaco */
+  footer {
+    background-color: hsl(var(--background)) !important;
+    position: relative;
+    z-index: 1;
+  }
+
+  footer::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: hsl(var(--background));
+    z-index: -1;
+  }
+
+  /* Patrón de puntos para el fondo */
+  .bg-dot-pattern {
+    background-color: hsl(var(--background));
+    background-image: radial-gradient(
+      circle,
+      hsl(0, 0%, 20%) 1px,
+      transparent 1px
+    );
+    background-size: 24px 24px;
+    background-position: 0 0;
+  }
+}
