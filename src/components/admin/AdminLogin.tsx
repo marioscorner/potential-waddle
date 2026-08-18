@@ -1,10 +1,8 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Lock, AlertCircle, Sparkles } from 'lucide-react';
 
 const AdminLogin = () => {
-  const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -29,7 +27,7 @@ const AdminLogin = () => {
       }
 
       // Redirect to admin dashboard
-      navigate('/admin/dashboard');
+      window.location.assign('/admin/dashboard/');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Authentication failed');
     } finally {

@@ -1,0 +1,55 @@
+---
+import '../index.css';
+
+type Props = {
+  language: 'es' | 'en';
+  title: string;
+  description: string;
+  schema?: string;
+  noindex?: boolean;
+};
+
+const { language, title, description, schema, noindex = false } = Astro.props;
+const siteUrl = 'https://marioscorner.com';
+const canonical = `${siteUrl}/${language}/`;
+const image = `${siteUrl}/MY_PHOTO.png`;
+---
+
+<!doctype html>
+<html lang={language} class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="author" content="marioscorner" />
+    {noindex && <meta name="robots" content="noindex, nofollow, noarchive" />}
+    {!noindex && <link rel="canonical" href={canonical} />}
+    <link rel="alternate" hreflang="es" href={`${siteUrl}/es/`} />
+    <link rel="alternate" hreflang="en" href={`${siteUrl}/en/`} />
+    <link rel="alternate" hreflang="x-default" href={`${siteUrl}/es/`} />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={image} />
+    <meta property="og:image:alt" content={title} />
+    <meta property="og:locale" content={language === 'es' ? 'es_ES' : 'en_US'} />
+    <meta property="og:site_name" content="marioscorner" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={image} />
+    {schema && <script type="application/ld+json" set:html={schema} />}
+    <script is:inline>
+      const savedTheme = localStorage.getItem('theme');
+      document.documentElement.classList.toggle('light', savedTheme === 'light');
+      document.documentElement.classList.toggle('dark', savedTheme !== 'light');
+    </script>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

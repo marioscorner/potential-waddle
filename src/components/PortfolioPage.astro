@@ -1,0 +1,197 @@
+---
+import {
+  Award,
+  Briefcase,
+  Code,
+  Code2,
+  ExternalLink,
+  FileText,
+  FolderOpen,
+  Globe2,
+  Hand,
+  Languages,
+  Mail,
+  MapPin,
+  MessageSquare,
+  Moon,
+  Sun,
+  User,
+  UserCheck,
+} from 'lucide-react';
+import { FaGithub, FaInstagram, FaLinkedin } from 'react-icons/fa6';
+import SiteLayout from '@/layouts/SiteLayout.astro';
+import { formatExperiencePeriod, sortExperiences } from '@/lib/experience';
+import { getPortfolioData } from '@/lib/server/content';
+import { translations, type Language } from '@/lib/translations';
+
+type Props = { language: Language };
+const { language } = Astro.props;
+const t = translations[language];
+const { content, uploads } = await getPortfolioData();
+const hero = content.hero?.[language] || t.hero;
+const about = content.about?.[language] || t.about;
+const status = content.status?.[language] || t.techStack;
+const contact = content.contact?.[language] || t.contact;
+const featured = content.featured?.[language] || t.featured;
+const projects = content.projects?.[language] || t.projects;
+const meta = content.meta?.[language] || t.meta;
+const certifications = Array.isArray(content.certifications) ? content.certifications : [];
+const languages = Array.isArray(content.languages) ? content.languages : [];
+const experiences = Array.isArray(content.experience) ? sortExperiences(content.experience) : [];
+const technologies = Array.isArray(content.technologies?.items) ? content.technologies.items : [];
+const socialLinks = Array.isArray(content.social) ? content.social : [];
+const socialIcons = { FaLinkedin, FaGithub, FaInstagram, Globe2 };
+const cvUpload = uploads.find((upload) => upload.slot === `cv-${language}`)
+  || uploads.find((upload) => upload.document_type === 'cv' && upload.language === language);
+const photoUpload = uploads.find((upload) => upload.slot === 'hero-photo');
+const versionedUrl = (upload: any, fallback: string) => {
+  if (!upload?.url) return fallback;
+  const cacheKey = upload.updated_at || upload.created_at;
+  return `${upload.url}${cacheKey ? `?v=${encodeURIComponent(cacheKey)}` : ''}`;
+};
+const cvUrl = versionedUrl(cvUpload, language === 'es' ? '/cv-es.pdf' : '/cv-en.pdf');
+const heroPhotoUrl = versionedUrl(photoUpload, '/MY_PHOTO.webp');
+const siteUrl = 'https://marioscorner.com';
+const canonical = `${siteUrl}/${language}/`;
+const safeExternalUrl = (value: unknown) => {
+  try {
+    const url = new URL(String(value));
+    return ['http:', 'https:'].includes(url.protocol) ? url.href : '#';
+  } catch {
+    return '#';
+  }
+};
+const schema = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@graph': [
+    { '@type': 'WebSite', name: 'marioscorner', url: siteUrl, inLanguage: language },
+    {
+      '@type': 'ProfilePage',
+      mainEntity: {
+        '@type': 'Person',
+        name: hero.name,
+        url: canonical,
+        image: `${siteUrl}/MY_PHOTO.png`,
+        jobTitle: language === 'es' ? 'Desarrollador full stack' : 'Full stack developer',
+        sameAs: socialLinks.map((link) => safeExternalUrl(link.url)).filter((url) => url !== '#'),
+      },
+    },
+  ],
+}).replaceAll('<', '\\u003c');
+---
+
+<SiteLayout language={language} title={meta.title} description={meta.description} schema={schema}>
+  <main id="main-content" class="bg-dot-pattern relative flex min-h-screen flex-1 flex-col">
+    <div class="fixed right-4 top-4 z-50 flex gap-2">
+      <a
+        href={language === 'es' ? '/en/' : '/es/'}
+        class="inline-flex h-10 w-10 items-center justify-center rounded-md text-lg hover:bg-muted"
+        aria-label={language === 'es' ? 'Switch to English' : 'Cambiar a Español'}
+      >
+        {language === 'es' ? '🇬🇧' : '🇪🇸'}
+      </a>
+      <button id="theme-toggle" class="inline-flex h-10 w-10 items-center justify-center rounded-md hover:bg-muted" aria-label="Toggle theme">
+        <Sun className="theme-sun h-5 w-5" />
+        <Moon className="theme-moon hidden h-5 w-5" />
+      </button>
+    </div>
+
+    <div class="flex w-full flex-1 items-center justify-center px-4 py-2 sm:px-6 lg:px-8">
+      <div class="w-full max-w-[90rem]">
+        <div class="grid grid-cols-1 items-stretch gap-2 lg:grid-cols-3">
+          <div class="flex h-full flex-col gap-2">
+            <div class="animate-fade-in opacity-0" style="animation-delay: 0ms">
+              <header class="bento-card flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
+                <div class="flex-1 space-y-2">
+                  <div class="flex items-center gap-2"><Hand className="h-4 w-4 text-primary" /><span class="section-label">welcome</span></div>
+                  <div class="space-y-1">
+                    <h1 class="text-lg leading-relaxed text-foreground">{hero.greeting} <span class="font-semibold">{hero.name}</span>, {hero.intro}</h1>
+                    <p class="text-sm text-muted-foreground">{hero.cta}</p>
+                  </div>
+                  <div class="flex flex-wrap items-center gap-2 pt-1">
+                    {socialLinks.map((link) => {
+                      const SocialIcon = socialIcons[link.icon as keyof typeof socialIcons] || Globe2;
+                      return <a href={safeExternalUrl(link.url)} target="_blank" rel="noopener noreferrer" class="btn-primary" aria-label={link.name}><SocialIcon className="h-4 w-4 shrink-0" /><span>{link.name}</span></a>;
+                    })}
+                    <a href={cvUrl} download class="btn-primary"><FileText className="h-4 w-4" /><span>{hero.downloadCV}</span></a>
+                  </div>
+                </div>
+                <div class="h-28 w-28 shrink-0 overflow-hidden rounded-xl bg-gradient-to-br from-gray-700 to-gray-800 sm:h-32 sm:w-32">
+                  <img src={heroPhotoUrl} alt={`Photo of ${hero.name || 'Mario'}`} class="h-full w-full object-cover" width="512" height="512" fetchpriority="high" decoding="async" />
+                </div>
+              </header>
+            </div>
+
+            <div class="animate-fade-in opacity-0" style="animation-delay: 100ms">
+              <section class="bento-card flex flex-col" aria-labelledby="about-title">
+                <div class="mb-1 flex items-center gap-2"><User className="h-4 w-4 text-primary" /><h2 id="about-title" class="section-label">{t.about.label}</h2></div>
+                <div class="space-y-1 text-sm leading-relaxed text-muted-foreground"><p>{about.paragraph1}</p><p>{about.paragraphFullStack}</p><p>{about.paragraph2}</p></div>
+              </section>
+            </div>
+
+            <div class="animate-fade-in opacity-0" style="animation-delay: 200ms">
+              <section class="bento-card flex h-full flex-col justify-between" aria-labelledby="projects-title">
+                <div><div class="mb-1 flex items-center gap-2"><Code className="h-4 w-4 text-primary" /><h2 id="projects-title" class="section-label">{projects.title}</h2></div><p class="mb-2 text-sm leading-relaxed text-muted-foreground">{projects.description}</p></div>
+                <a href={safeExternalUrl(content.projects?.url)} target="_blank" rel="noopener noreferrer" class="btn-primary"><FaGithub className="h-4 w-4" /><span>{projects.visitGitHub}</span></a>
+              </section>
+            </div>
+          </div>
+
+          <div class="flex h-full flex-col gap-2">
+            <div class="animate-fade-in opacity-0" style="animation-delay: 300ms">
+              <section class="bento-card" aria-labelledby="status-title">
+                <div class="mb-1 flex items-center gap-2"><UserCheck className="h-4 w-4 text-primary" /><h2 id="status-title" class="section-label">{status.status}</h2></div>
+                <div class="space-y-1"><div class="flex items-center gap-2"><span class="relative flex h-2.5 w-2.5"><span class="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" style={`background-color: ${content.status?.indicatorColor || '#22c55e'}`}></span><span class="relative inline-flex h-2.5 w-2.5 rounded-full" style={`background-color: ${content.status?.indicatorColor || '#22c55e'}`}></span></span><span class="text-sm font-medium">{status.available}</span></div><p class="text-sm text-muted-foreground">{status.statusDetail}</p></div>
+              </section>
+            </div>
+
+            <div class="animate-fade-in opacity-0" style="animation-delay: 400ms">
+              <section class="bento-card flex h-full flex-col justify-between" id="contact" aria-labelledby="contact-title">
+                <div><div class="mb-1 flex items-center gap-2"><MessageSquare className="h-4 w-4 text-primary" /><h2 id="contact-title" class="section-label">{contact.title}</h2></div><address class="not-italic"><div class="flex items-center gap-2 text-sm"><Mail className="h-4 w-4 text-muted-foreground" /><a href={`mailto:${contact.email}`}>{contact.email}</a></div><p class="mt-1 flex items-center gap-2 text-sm text-muted-foreground"><MapPin className="h-4 w-4" />{contact.location}</p></address></div>
+                <a href={`mailto:${contact.email}`} class="btn-accent mt-2"><Mail className="h-4 w-4" /><span>{contact.sendEmail}</span></a>
+              </section>
+            </div>
+
+            <div class="animate-fade-in opacity-0" style="animation-delay: 500ms">
+              <article class="bento-card-featured flex h-full flex-col justify-between" aria-labelledby="featured-project-title">
+                <div><div class="mb-1 flex items-center gap-2"><FolderOpen className="h-4 w-4 text-primary" /><p class="section-label">{featured.title}</p></div><h2 id="featured-project-title" class="mb-1 text-base font-semibold">{featured.projectTitle}</h2><p class="text-sm leading-relaxed text-muted-foreground">{featured.description}</p><p class="mt-1 text-sm leading-relaxed text-muted-foreground">{featured.description2}</p><p class="mt-1 text-sm text-muted-foreground">{featured.cta}</p></div>
+                <a href={safeExternalUrl(content.featured?.url)} target="_blank" rel="noopener noreferrer" class="btn-primary mt-2"><ExternalLink className="h-4 w-4" /><span>{featured.visitWeb}</span></a>
+              </article>
+            </div>
+
+            <div class="animate-fade-in opacity-0" style="animation-delay: 600ms">
+              <section class="bento-card h-full" aria-labelledby="languages-title"><div class="mb-1 flex items-center gap-2"><Languages className="h-4 w-4 text-primary" /><h2 id="languages-title" class="section-label">{t.languages.title}</h2></div><div class="space-y-1">{languages.map((item, index) => <div class="space-y-0.5"><p class="text-sm font-medium">{item.name?.[language]}</p><p class="text-sm text-muted-foreground">{item.level?.[language]}</p>{index < languages.length - 1 && <div class="border-t border-border pt-1" />}</div>)}</div></section>
+            </div>
+          </div>
+
+          <div class="flex h-full flex-col gap-2">
+            <div class="animate-fade-in opacity-0" style="animation-delay: 700ms">
+              <section class="bento-card" aria-labelledby="technologies-title"><div class="mb-1 flex items-center gap-2"><Code2 className="h-4 w-4 text-primary" /><h2 id="technologies-title" class="section-label">{t.technologies.label}</h2></div><div class="grid grid-cols-2 gap-1.5">{technologies.map((technology) => <span class="inline-flex items-center justify-center rounded-md border border-primary/20 bg-primary/10 px-2.5 py-1 text-sm font-medium text-primary">{technology}</span>)}</div></section>
+            </div>
+
+            <div class="animate-fade-in opacity-0" style="animation-delay: 800ms">
+              <section class="bento-card" aria-labelledby="experience-title"><div class="mb-1 flex items-center gap-2"><Briefcase className="h-4 w-4 text-primary" /><h2 id="experience-title" class="section-label">{t.techStack.experience}</h2></div><div class="space-y-1">{experiences.map((job, index) => <article class="space-y-1"><h3 class="text-base font-semibold">{job.position?.[language]}</h3><p class="text-sm font-medium text-muted-foreground">{job.company}</p><time class="text-xs text-muted-foreground" datetime={job.startDate}>{formatExperiencePeriod(job, language)}</time>{job.responsibilities?.[language]?.length > 0 && <ul class="mt-2 space-y-1">{job.responsibilities[language].map((responsibility) => <li class="text-xs leading-relaxed text-muted-foreground">{responsibility}</li>)}</ul>}{index < experiences.length - 1 && <div class="mt-1 border-t border-border pt-1" />}</article>)}</div></section>
+            </div>
+
+            <div class="animate-fade-in opacity-0" style="animation-delay: 900ms">
+              <section class="bento-card h-full" aria-labelledby="certifications-title"><div class="mb-1 flex items-center gap-2"><Award className="h-4 w-4 text-primary" /><h2 id="certifications-title" class="section-label">{t.certifications.title}</h2></div><div class="space-y-1">{certifications.map((certification, index) => <article class="space-y-1"><p class="text-sm font-medium">{certification.name?.[language]}</p>{certification.issuer && <p class="text-sm text-muted-foreground">{certification.issuer[language]}</p>}{index < certifications.length - 1 && <div class="border-t border-border pt-1" />}</article>)}</div></section>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="mt-auto border-t border-border py-2"><p class="text-center text-xs text-muted-foreground">© {new Date().getFullYear()} · {content.footer?.[language]?.madeWith || t.footer.madeWith} <span class="text-primary">♥</span> {content.footer?.[language]?.by || t.footer.by} {content.footer?.[language]?.name || t.footer.name}</p></footer>
+  </main>
+
+  <script>
+    const button = document.querySelector('#theme-toggle');
+    button?.addEventListener('click', () => {
+      const isLight = document.documentElement.classList.toggle('light');
+      document.documentElement.classList.toggle('dark', !isLight);
+      localStorage.setItem('theme', isLight ? 'light' : 'dark');
+      document.querySelector('.theme-sun')?.classList.toggle('hidden', isLight);
+      document.querySelector('.theme-moon')?.classList.toggle('hidden', !isLight);
+    });
+  </script>
+</SiteLayout>

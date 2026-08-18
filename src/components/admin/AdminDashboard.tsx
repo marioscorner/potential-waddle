@@ -1,8 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { LogOut, Save, AlertCircle, CheckCircle, Upload, Trash2, Palette } from 'lucide-react';
-import { useContent } from '@/contexts/ContentContext';
 import MonthPicker from '@/components/admin/MonthPicker';
 import { normalizeExperiences, sortExperiences, toStructuredExperiences } from '@/lib/experience';
 
@@ -68,8 +66,6 @@ const createExperience = () => {
 };
 
 const AdminDashboard = () => {
-  const navigate = useNavigate();
-  const { refreshContent } = useContent();
   const [authenticated, setAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
   const [content, setContent] = useState(null);
@@ -124,17 +120,17 @@ const AdminDashboard = () => {
           await fetchContent();
           await fetchUploads();
         } else {
-          navigate('/admin');
+          window.location.assign('/admin/');
         }
       } catch (err) {
-        navigate('/admin');
+        window.location.assign('/admin/');
       } finally {
         setLoading(false);
       }
     };
 
     checkAuth();
-  }, [navigate, fetchContent, fetchUploads]);
+  }, [fetchContent, fetchUploads]);
 
   const handleSave = async () => {
     if (!content) return;
@@ -169,7 +165,6 @@ const AdminDashboard = () => {
         ...currentContent,
         [activeTab]: sectionData,
       }));
-      await refreshContent();
       showMessage('success', 'Content saved successfully');
     } catch (err) {
       showMessage('error', 'Failed to save content');
@@ -184,7 +179,7 @@ const AdminDashboard = () => {
         method: 'POST',
         credentials: 'include',
       });
-      navigate('/admin');
+      window.location.assign('/admin/');
     } catch (err) {
       console.error('Logout error:', err);
     }
