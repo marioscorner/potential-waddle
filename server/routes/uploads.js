@@ -247,4 +247,5 @@ router.delete('/:filename', requireAuth, async (req, res) => {
   }
 });
 
+export { getFileMimeType, getUploadPath };
 export default router;

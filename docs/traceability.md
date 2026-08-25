@@ -11,5 +11,5 @@
 | Content editor | React SPA page | React island | Build; integration pending | In progress | API unchanged |
 | Content API | Express | Express-compatible contract | Merge and URL validation tests | In progress | No contract change |
 | Authentication | Express session in PostgreSQL | Existing implementation | Login rate-limit request check | In progress | Production sessions preserved; 10 attempts per 15 minutes |
-| Uploads | Express, PostgreSQL, filesystem | Existing implementation | Baseline only | Pending tests | Production volume preserved |
+| Uploads | Express, PostgreSQL, filesystem | Existing implementation | Signature and path-isolation tests | In progress | Production volume preserved |
 | Deployment | Docker Compose and Traefik | Same topology with Astro build | Not validated | Pending | Docker unavailable in WSL |
