@@ -15,10 +15,10 @@
 | Phase | Status | Evidence |
 | --- | --- | --- |
 | Repository and baseline | Completed | `e5f6239`; main and migration branch published |
-| Astro public SSR | In progress | Astro check, lint, and build pass |
+| Astro public SSR | In progress | Astro check, lint, build, and local SSR route checks pass |
 | Admin islands | In progress | Compile and build pass; runtime integration pending |
 | API characterization | Pending | No existing tests |
-| Dependency hardening | Pending | Baseline audit retained |
+| Dependency hardening | Completed for current dependencies | Removed obsolete SPA dependencies, upgraded Multer, added login rate limiting, and production audit is clear |
 | Docker and clean environment | Blocked by environment | Docker WSL integration unavailable |
 | Production migration | Requires decision | No production action authorized |
 
@@ -26,8 +26,6 @@
 
 - The admin dashboard has schemaless state and weak TypeScript coverage.
 - Content validation only covers selected URLs.
-- Authentication has no request rate limiting.
-- CORS is unrestricted.
 - Schema creation is not represented by versioned migrations.
 - Database and filesystem upload changes are not atomic.
 - Deployment documentation references CI files that do not exist.

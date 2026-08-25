@@ -1,8 +1,17 @@
 import express from 'express';
+import { rateLimit } from 'express-rate-limit';
 import argon2 from 'argon2';
 import { verifyPassword, requireAuth } from '../middleware/auth.js';
 
 const router = express.Router();
+
+const loginRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  message: { error: 'Too many login attempts. Try again later.' },
+});
 
 const ADMIN_USER = process.env.ADMIN_USER || 'admin';
 let adminPasswordHash = process.env.ADMIN_PASSWORD_HASH;
@@ -25,7 +34,7 @@ if (!adminPasswordHash && !process.env.ADMIN_PASSWORD) {
 }
 
 // POST /api/auth/login
-router.post('/login', async (req, res) => {
+router.post('/login', loginRateLimit, async (req, res) => {
   try {
     const { username, password } = req.body;
 

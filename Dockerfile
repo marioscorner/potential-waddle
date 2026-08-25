@@ -1,4 +1,4 @@
-# Stage 1: Build React app
+# Stage 1: Build the Astro SSR application
 FROM node:22-alpine AS builder
 
 WORKDIR /app
@@ -14,7 +14,7 @@ RUN pnpm install --frozen-lockfile
 # Copy source code
 COPY . .
 
-# Build the React app
+# Build server and client output
 RUN pnpm build
 
 # Stage 2: Production
@@ -30,7 +30,7 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 # Install production dependencies only
 RUN pnpm install --prod --frozen-lockfile
 
-# Copy built React app from builder
+# Copy the built Astro server and client output
 COPY --from=builder /app/dist ./dist
 
 # Copy server code

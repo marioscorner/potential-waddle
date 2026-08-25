@@ -1,16 +1,16 @@
 {
-  "files": [],
-  "references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }],
+  "extends": "astro/tsconfigs/base",
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     },
-    "noImplicitAny": false,
-    "noUnusedParameters": false,
     "skipLibCheck": true,
     "allowJs": true,
+    "strict": false,
+    "noImplicitAny": false,
     "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "strictNullChecks": false
   }
 }

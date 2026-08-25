@@ -1,102 +1,53 @@
-# My Digital Canvas - Portfolio Personal
+# marioscorner.com
 
-Portfolio personal desarrollado con React, TypeScript y Tailwind CSS.
+Personal portfolio and content-managed site rendered with Astro SSR. Express continues to host the existing API, PostgreSQL session store, and uploads while the migration proceeds.
 
-## 🚀 Tecnologías
+## Stack
 
-Este proyecto está construido con:
+- Astro 7 SSR with the Node adapter for public pages and SEO.
+- React islands for `/admin/` and `/admin/dashboard/`.
+- Express for `/api`, authentication, uploads, and health checks.
+- PostgreSQL for content, sessions, upload metadata, and audit history.
+- Tailwind CSS for styles.
 
-- **Vite** - Build tool y servidor de desarrollo
-- **React 19** - Biblioteca de UI
-- **TypeScript** - Tipado estático
-- **Tailwind CSS** - Framework CSS utility-first
-- **shadcn/ui** - Componentes UI
-- **React Router** - Enrutamiento
+## Requirements
 
-## 📦 Instalación
+- Node.js 22.
+- Corepack and `pnpm@11.1.1`.
+- PostgreSQL for the Express application; public Astro development routes use safe default content if it is unavailable.
 
-Requisitos: Node.js y npm instalados - [instalar con nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-```sh
-# Paso 1: Clonar el repositorio
-git clone <YOUR_GIT_URL>
-
-# Paso 2: Navegar al directorio del proyecto
-cd my-digital-canvas
-
-# Paso 3: Instalar las dependencias
-npm install
-
-# Paso 4: Iniciar el servidor de desarrollo
-npm run dev
-```
-
-## 🛠️ Scripts disponibles
-
-- `npm run dev` - Inicia el servidor de desarrollo
-- `npm run build` - Construye la aplicación para producción
-- `npm run preview` - Previsualiza la build de producción
-- `npm run lint` - Ejecuta el linter
-
-## 🐳 Despliegue con Docker
-
-El proyecto está dockerizado y listo para desplegarse en un VPS.
-
-### Desarrollo local con Docker
+## Local Development
 
 ```sh
-# Construir la imagen
-docker build -t my-digital-canvas .
-
-# Ejecutar el contenedor
-docker run -p 80:80 my-digital-canvas
+corepack enable
+corepack prepare pnpm@11.1.1 --activate
+pnpm install --frozen-lockfile
+pnpm dev
 ```
 
-### Despliegue en producción
-
-#### Opción 1: Despliegue Automático con GitHub Actions (Recomendado) 🚀
-
-El proyecto está configurado para desplegarse automáticamente cada vez que hagas `git push` a la rama `main`.
-
-**Configuración inicial:**
-1. Sube tu código a GitHub
-2. Configura los secrets en GitHub: `SSH_PRIVATE_KEY`, `SSH_USER`, `SSH_HOST`
-3. ¡Listo! Cada push desplegará automáticamente
-
-Ver la [guía completa de despliegue con GitHub](./DEPLOY_GITHUB.md).
-
-#### Opción 2: Despliegue Manual
+Astro runs on port 4321. To run the complete Express application, first build it and provide `DATABASE_URL`, `SESSION_SECRET`, and admin credentials:
 
 ```sh
-# Con Docker Compose
-docker-compose up -d --build
+pnpm build
+DATABASE_URL=postgres://... SESSION_SECRET=... ADMIN_PASSWORD_HASH=... pnpm server
 ```
 
-Para más detalles sobre el despliegue, consulta [DEPLOY.md](./DEPLOY.md) o [DEPLOY_GITHUB.md](./DEPLOY_GITHUB.md).
+Generate a password hash with `pnpm hash-password`.
 
-## 📁 Estructura del proyecto
+## Validation
 
-```
-src/
-├── components/       # Componentes React
-│   ├── portfolio/   # Componentes del portfolio
-│   └── ui/          # Componentes UI (shadcn/ui)
-├── contexts/         # Contextos de React
-├── hooks/            # Custom hooks
-├── lib/              # Utilidades y configuraciones
-├── pages/            # Páginas de la aplicación
-└── assets/           # Recursos estáticos
+```sh
+pnpm install --frozen-lockfile
+pnpm check
+pnpm lint
+pnpm build
+pnpm audit --prod --audit-level moderate
 ```
 
-## ✨ Características
+## Deployment
 
-- 🌓 Modo oscuro/claro
-- 🌍 Soporte multiidioma (Español/Inglés)
-- 📱 Diseño responsive
-- 🎨 UI moderna con animaciones
-- 🎵 Integración con Spotify
-- 📄 Descarga de CV según idioma
+`docker-compose.yml` retains the VPS topology: Traefik terminates TLS, the `web` container runs Express and the Astro handler on port 3000, PostgreSQL stores application data, and `./uploads` is mounted at `/app/uploads`.
 
-## 📝 Licencia
+Do not run the Compose stack against production data without a verified PostgreSQL backup, a tested restore, upload integrity checks, and explicit production approval. Docker validation is currently blocked in this WSL environment because Docker Desktop integration is unavailable.
 
-Este proyecto es de uso personal.
+See `docs/architecture.md`, `docs/traceability.md`, and `docs/refactoring-progress.md` for migration details.

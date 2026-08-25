@@ -1,3 +1,6 @@
+overrides:
+  body-parser: ^1.20.6
+
 allowBuilds:
   '@swc/core': true
   argon2: true
