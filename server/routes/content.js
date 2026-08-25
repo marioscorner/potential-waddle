@@ -117,4 +117,5 @@ router.post('/seed', requireAuth, async (req, res) => {
   }
 });
 
+export { getValidationError, mergeDefaults };
 export default router;

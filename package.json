@@ -10,6 +10,7 @@
     "build:dev": "astro build --mode development",
     "check": "astro check",
     "lint": "eslint .",
+    "test": "node --test",
     "preview": "astro preview",
     "hash-password": "node server/utils/hashPassword.js",
     "server": "node server/index.js",
