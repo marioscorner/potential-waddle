@@ -48,6 +48,8 @@ pnpm audit --prod --audit-level moderate
 
 `docker-compose.yml` retains the VPS topology: Traefik terminates TLS, the `web` container runs Express and the Astro handler on port 3000, PostgreSQL stores application data, and `./uploads` is mounted at `/app/uploads`.
 
+At startup Express applies pending SQL files from `server/db/migrations`; see `docs/migrations.md` before adding or deploying one.
+
 Do not run the Compose stack against production data without a verified PostgreSQL backup, a tested restore, upload integrity checks, and explicit production approval. Docker validation is currently blocked in this WSL environment because Docker Desktop integration is unavailable.
 
 See `docs/architecture.md`, `docs/traceability.md`, and `docs/refactoring-progress.md` for migration details.

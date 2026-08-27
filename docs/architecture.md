@@ -21,7 +21,7 @@ Traefik
 - `src/components/admin`: React islands used only by the content editor.
 - `src/lib/server`: server-only content composition.
 - `server/routes`: stable Express API contracts.
-- `server/db`: PostgreSQL access and schema bootstrap pending versioned migrations.
+- `server/db`: PostgreSQL access and versioned SQL migrations.
 
 ## Data
 
