@@ -17,7 +17,7 @@
 | Repository and baseline | Completed | `e5f6239`; main and migration branch published |
 | Astro public SSR | In progress | Astro check, lint, build, and local SSR route checks pass |
 | Admin islands | In progress | Compile and build pass; runtime integration pending |
-| API characterization | In progress | Six `node:test` contracts cover auth, rate limiting, content merging, URL validation, and upload signatures |
+| API characterization | In progress | Eight `node:test` contracts cover auth, rate limiting, content, uploads, health, API 404, and canonical redirects |
 | Dependency hardening | Completed for current dependencies | Removed obsolete SPA dependencies, upgraded Multer, added login rate limiting, and production audit is clear |
 | Docker and clean environment | Blocked by environment | Docker WSL integration unavailable |
 | Production migration | Requires decision | No production action authorized |

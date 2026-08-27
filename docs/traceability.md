@@ -12,4 +12,4 @@
 | Content API | Express | Express-compatible contract | Merge and URL validation tests | In progress | No contract change |
 | Authentication | Express session in PostgreSQL | Existing implementation | Login rate-limit request check | In progress | Production sessions preserved; 10 attempts per 15 minutes |
 | Uploads | Express, PostgreSQL, filesystem | Existing implementation | Signature and path-isolation tests | In progress | Production volume preserved |
-| Deployment | Docker Compose and Traefik | Same topology with Astro build | Not validated | Pending | Docker unavailable in WSL |
+| Deployment | Docker Compose and Traefik | Same topology with Astro build | Build and Express startup-contract tests | In progress | Docker unavailable in WSL |

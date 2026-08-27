@@ -10,7 +10,6 @@ import { pool } from './db/queries.js';
 import authRoutes from './routes/auth.js';
 import contentRoutes from './routes/content.js';
 import uploadRoutes from './routes/uploads.js';
-import { handler as astroHandler } from '../dist/server/entry.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -19,6 +18,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const PgSession = connectPgSimple(session);
 const SITE_URL = 'https://marioscorner.com';
+let astroHandler;
 
 const validateProductionEnv = () => {
   if (process.env.NODE_ENV !== 'production') return;
@@ -99,7 +99,10 @@ app.use(express.static(clientPath, {
 }));
 
 app.use('/api', (req, res) => res.status(404).json({ error: 'Not found' }));
-app.use(astroHandler);
+app.use((req, res, next) => {
+  if (!astroHandler) return next();
+  return astroHandler(req, res, next);
+});
 
 // Error handling
 app.use((err, req, res, next) => {
@@ -116,6 +119,8 @@ const startServer = async () => {
     await initDb();
     console.log('✅ Database initialized');
 
+    ({ handler: astroHandler } = await import('../dist/server/entry.mjs'));
+
     // Start the server
     app.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);
@@ -128,6 +133,9 @@ const startServer = async () => {
   }
 };
 
-startServer();
+if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
+  startServer();
+}
 
+export { startServer };
 export default app;
