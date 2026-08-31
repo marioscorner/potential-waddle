@@ -100,7 +100,7 @@ ls -la .env
 pnpm install --frozen-lockfile
 pnpm test
 pnpm lint
-pnpm build
+pnpm test:seo
 
 # Build and start the services only after the gates pass
 docker compose up -d --build

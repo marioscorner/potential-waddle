@@ -40,7 +40,7 @@ Generate a password hash with `pnpm hash-password`.
 pnpm install --frozen-lockfile
 pnpm check
 pnpm lint
-pnpm build
+pnpm test:seo
 pnpm audit --prod --audit-level moderate
 ```
 
