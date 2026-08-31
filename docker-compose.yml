@@ -5,10 +5,11 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: portfolio
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
       POSTGRES_DB: portfolio
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      # A deliberately new volume: it is not the volume used by the retired stack.
+      - postgres_data_v2:/var/lib/postgresql/data
     networks:
       - web
     ports:
@@ -63,7 +64,7 @@ services:
         condition: service_healthy
     environment:
       NODE_ENV: production
-      DATABASE_URL: postgres://portfolio:${DB_PASSWORD:-password}@postgres:5432/portfolio
+      DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL in .env}
       ADMIN_USER: ${ADMIN_USER:-admin}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
       ADMIN_PASSWORD_HASH: ${ADMIN_PASSWORD_HASH:-}
@@ -97,7 +98,8 @@ services:
       - web
 
 volumes:
-  postgres_data:
+  postgres_data_v2:
+    name: marioscorner_postgres_data_v2
     driver: local
 
 networks:
