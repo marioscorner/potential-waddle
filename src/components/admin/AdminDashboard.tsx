@@ -4,7 +4,7 @@ import { LogOut, Save, AlertCircle, CheckCircle, Upload, Trash2, Palette } from 
 import MonthPicker from '@/components/admin/MonthPicker';
 import { normalizeExperiences, sortExperiences, toStructuredExperiences } from '@/lib/experience';
 
-const tabs = ['hero', 'about', 'status', 'contact', 'featured', 'technologies', 'experience', 'certifications', 'languages', 'projects', 'social', 'uploads'];
+const tabs = ['hero', 'about', 'status', 'contact', 'featured', 'technologies', 'experience', 'certifications', 'languages', 'projects', 'social', 'meta', 'uploads'];
 
 const sectionLabels = {
   hero: 'Hero',
@@ -18,6 +18,7 @@ const sectionLabels = {
   languages: 'Languages',
   projects: 'Projects',
   social: 'Social Links',
+  meta: 'Search metadata',
   uploads: 'Uploads',
 };
 
@@ -37,6 +38,8 @@ const fieldLabels = {
   issuer: 'Issuer',
   level: 'Level',
   icon: 'Icon',
+  title: 'Page title',
+  description: 'Meta description',
 };
 
 const getFieldLabel = (key) => fieldLabels[key] || key.replace(/([A-Z])/g, ' $1').replace(/^./, (letter) => letter.toUpperCase());

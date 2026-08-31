@@ -31,4 +31,4 @@ Traefik
 - `session`: Express sessions managed by `connect-pg-simple`.
 - `/app/uploads`: persistent files mounted by Docker Compose.
 
-The migration must not alter production data or upload paths without a backup, restore rehearsal, integrity checks, and explicit production approval.
+The Astro deployment starts with a new PostgreSQL volume. The previous database is not imported; public pages use bundled defaults until content is saved through the admin interface. Deleting the old volume remains a separate, explicitly destructive production operation.

@@ -7,12 +7,13 @@ type Props = {
   description: string;
   schema?: string;
   noindex?: boolean;
+  image?: string;
 };
 
-const { language, title, description, schema, noindex = false } = Astro.props;
+const { language, title, description, schema, noindex = false, image: suppliedImage } = Astro.props;
 const siteUrl = 'https://marioscorner.com';
 const canonical = `${siteUrl}/${language}/`;
-const image = `${siteUrl}/MY_PHOTO.png`;
+const image = suppliedImage || `${siteUrl}/MY_PHOTO.png`;
 ---
 
 <!doctype html>
@@ -25,23 +26,24 @@ const image = `${siteUrl}/MY_PHOTO.png`;
     <meta name="author" content="marioscorner" />
     {noindex && <meta name="robots" content="noindex, nofollow, noarchive" />}
     {!noindex && <link rel="canonical" href={canonical} />}
-    <link rel="alternate" hreflang="es" href={`${siteUrl}/es/`} />
-    <link rel="alternate" hreflang="en" href={`${siteUrl}/en/`} />
-    <link rel="alternate" hreflang="x-default" href={`${siteUrl}/es/`} />
+    {!noindex && <link rel="alternate" hreflang="es" href={`${siteUrl}/es/`} />}
+    {!noindex && <link rel="alternate" hreflang="en" href={`${siteUrl}/en/`} />}
+    {!noindex && <link rel="alternate" hreflang="x-default" href={`${siteUrl}/es/`} />}
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
-    <meta property="og:url" content={canonical} />
-    <meta property="og:image" content={image} />
-    <meta property="og:image:alt" content={title} />
-    <meta property="og:locale" content={language === 'es' ? 'es_ES' : 'en_US'} />
-    <meta property="og:site_name" content="marioscorner" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={image} />
+    {!noindex && <meta property="og:type" content="profile" />}
+    {!noindex && <meta property="og:title" content={title} />}
+    {!noindex && <meta property="og:description" content={description} />}
+    {!noindex && <meta property="og:url" content={canonical} />}
+    {!noindex && <meta property="og:image" content={image} />}
+    {!noindex && <meta property="og:image:alt" content={title} />}
+    {!noindex && <meta property="og:locale" content={language === 'es' ? 'es_ES' : 'en_US'} />}
+    {!noindex && <meta property="og:site_name" content="marioscorner" />}
+    {!noindex && <meta name="twitter:card" content="summary_large_image" />}
+    {!noindex && <meta name="twitter:title" content={title} />}
+    {!noindex && <meta name="twitter:description" content={description} />}
+    {!noindex && <meta name="twitter:image" content={image} />}
+    {!noindex && <meta name="twitter:image:alt" content={title} />}
     {schema && <script type="application/ld+json" set:html={schema} />}
     <script is:inline>
       const savedTheme = localStorage.getItem('theme');

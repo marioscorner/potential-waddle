@@ -41,15 +41,15 @@ const defaultContent = {
   status: {
     es: {
       status: "Estado",
-      available: "Buscando trabajo",
+      available: "Trabajando",
       statusDetail:
-        "Actualmente estoy buscando una oportunidad para seguir creciendo como desarrollador.",
+        "Actualmente formo parte del equipo de Eco Combustión.",
     },
     en: {
       status: "Status",
-      available: "Looking for work",
+      available: "Working",
       statusDetail:
-        "I'm currently looking for an opportunity to keep growing as a developer.",
+        "I'm currently part of the Eco Combustión team.",
     },
     indicatorColor: "#22c55e",
   },
@@ -58,13 +58,13 @@ const defaultContent = {
     es: {
       title: "¡Vamos a trabajar juntos!",
       email: "hello@marioscorner.com",
-      location: "Madrid/Málaga (posibilidad de desplazamiento)",
+      location: "Madrid",
       sendEmail: "Enviar email",
     },
     en: {
       title: "Let's work together!",
       email: "hello@marioscorner.com",
-      location: "Madrid/Malaga (possibility of travel)",
+      location: "Madrid",
       sendEmail: "Send email",
     },
   },
@@ -75,9 +75,9 @@ const defaultContent = {
       title: "Proyecto destacado",
       projectTitle: "Taekwondo Mario Gutiérrez",
       description:
-        "Este proyecto nace como mi TFM y como respuesta a una necesidad real: mejorar la comunicación entre alumnos y profesores mediante un chat y centralizar toda la gestión gimnasio de Taekwondo.",
+        "Este proyecto nace como mi TFM y como respuesta a una necesidad real: mejorar la comunicación entre alumnos y profesores mediante un chat y centralizar toda la gestión del gimnasio de Taekwondo.",
       description2:
-        "He implementado un chat en tiempo real entre alumnos y profesor, así como un perfil de alumno en el que puede ver sus datos y seguir su progreso.",
+        "He implementado un chat en tiempo real entre los alumnos y el profesor, así como un perfil en el que cada alumno puede consultar sus datos y seguir su progreso.",
       cta: "Te invito a descubrirlo.",
       visitWeb: "Visitar web",
       comingSoon: "Próximamente",
@@ -86,9 +86,9 @@ const defaultContent = {
       title: "Featured project",
       projectTitle: "Taekwondo Mario Gutiérrez",
       description:
-        "This project was born as my Master's Thesis and as a response to a real need: improve communication between students and teachers through a chat and centralize all the management of a Taekwondo gym.",
+        "This project began as my Master's Thesis and addresses a real need: improving communication between students and instructors through chat while centralizing the management of a Taekwondo gym.",
       description2:
-        "I have implemented a real-time chat between students and teacher, as well as a student profile where they can see their data and update it.",
+        "I implemented real-time chat between students and their instructor, plus a profile where each student can view their details and track their progress.",
       cta: "I invite you to discover it.",
       visitWeb: "Visit website",
       comingSoon: "Coming soon",
@@ -115,6 +115,20 @@ const defaultContent = {
   },
 
   experience: [
+    {
+      company: "Eco Combustión",
+      startDate: "2026-07",
+      endDate: "",
+      isCurrent: true,
+      position: {
+        es: "Programador full stack",
+        en: "Full stack developer",
+      },
+      responsibilities: {
+        es: ["Desarrollo de un sistema de navegación por voz"],
+        en: ["Development of a voice navigation system"],
+      },
+    },
     {
       company: "Quai Technologies",
       startDate: "2025-11",
@@ -184,7 +198,7 @@ const defaultContent = {
     es: {
       title: "Proyectos",
       description:
-        "En mi GitHub encontrarás proyectos personales y ejemplos de mi trabajo con diferentes tecnologías y frameworks. Siempre estoy con algún proyecto entre manos, así que no dudes en echarle un vistazo de vez en cuándo.",
+        "En mi GitHub encontrarás proyectos personales y ejemplos de mi trabajo con diferentes tecnologías y frameworks. Siempre estoy con algún proyecto entre manos, así que no dudes en echarle un vistazo de vez en cuando.",
       visitGitHub: "Ver en GitHub",
     },
     en: {
@@ -205,12 +219,12 @@ const defaultContent = {
 
   meta: {
     es: {
-      title: "marioscorner | Desarrollador Web",
-      description: "Portfolio personal de marioscorner. Programador Full Stack.",
+      title: "Mario Gutiérrez | Desarrollador Full Stack en Madrid",
+      description: "Portfolio de Mario Gutiérrez, desarrollador full stack en Madrid. Proyectos con TypeScript, React, Node.js, Python y PostgreSQL.",
     },
     en: {
-      title: "marioscorner | Full Stack Developer",
-      description: "Personal portfolio of marioscorner. Full Stack Developer.",
+      title: "Mario Gutiérrez | Full Stack Developer in Madrid",
+      description: "Portfolio of Mario Gutiérrez, a full stack developer in Madrid. Projects built with TypeScript, React, Node.js, Python and PostgreSQL.",
     },
   },
 

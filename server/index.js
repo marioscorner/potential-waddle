@@ -2,6 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import session from 'express-session';
 import connectPgSimple from 'connect-pg-simple';
+import { existsSync } from 'node:fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -18,7 +19,33 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const PgSession = connectPgSimple(session);
 const SITE_URL = 'https://marioscorner.com';
+const UPLOAD_DIR = path.resolve(process.env.UPLOAD_DIR || './uploads');
+const clientPath = path.join(__dirname, '../dist/client');
+const pageRedirects = new Map([
+  ['/', '/es/'],
+  ['/es', '/es/'],
+  ['/en', '/en/'],
+  ['/admin', '/admin/'],
+  ['/admin/dashboard', '/admin/dashboard/'],
+  ['/uploads/cv-es.pdf', '/cv-es.pdf'],
+  ['/uploads/cv-en.pdf', '/cv-en.pdf'],
+]);
 let astroHandler;
+
+const setAstroHandler = (handler) => {
+  astroHandler = handler;
+};
+
+const getCanonicalRedirect = (req) => {
+  if (!['GET', 'HEAD'].includes(req.method)) return null;
+
+  const targetPath = pageRedirects.get(req.path) || req.path;
+  if (req.hostname !== 'www.marioscorner.com' && targetPath === req.path) return null;
+
+  const queryIndex = req.originalUrl.indexOf('?');
+  const query = queryIndex >= 0 ? req.originalUrl.slice(queryIndex) : '';
+  return `${SITE_URL}${targetPath}${query}`;
+};
 
 const validateProductionEnv = () => {
   if (process.env.NODE_ENV !== 'production') return;
@@ -45,6 +72,12 @@ if (process.env.NODE_ENV === 'production') {
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
+app.use((req, res, next) => {
+  const redirect = getCanonicalRedirect(req);
+  if (redirect) return res.redirect(301, redirect);
+  next();
+});
+
 // Session configuration
 app.use(
   session({
@@ -66,8 +99,23 @@ app.use(
 );
 
 // Serve uploads directory
-const UPLOAD_DIR = process.env.UPLOAD_DIR || './uploads';
 app.use('/uploads', express.static(UPLOAD_DIR));
+
+const serveCv = (language) => (req, res, next) => {
+  const filename = `cv-${language}.pdf`;
+  const uploadedPath = path.join(UPLOAD_DIR, filename);
+  const fallbackPath = path.join(clientPath, filename);
+  const filePath = existsSync(uploadedPath) ? uploadedPath : fallbackPath;
+
+  res.sendFile(filePath, {
+    headers: { 'Cache-Control': 'public, max-age=0, must-revalidate' },
+  }, (error) => {
+    if (error) next(error);
+  });
+};
+
+app.get('/cv-es.pdf', serveCv('es'));
+app.get('/cv-en.pdf', serveCv('en'));
 
 // API routes
 app.use('/api/auth', authRoutes);
@@ -79,12 +127,8 @@ app.get('/health', (req, res) => {
   res.status(200).send('healthy\n');
 });
 
-const clientPath = path.join(__dirname, '../dist/client');
-
-app.use((req, res, next) => {
-  if (req.hostname === 'www.marioscorner.com') {
-    return res.redirect(301, `${SITE_URL}${req.originalUrl}`);
-  }
+app.use('/admin', (req, res, next) => {
+  res.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
   next();
 });
 
@@ -103,10 +147,22 @@ app.use((req, res, next) => {
   if (!astroHandler) return next();
   return astroHandler(req, res, next);
 });
+app.use((req, res, next) => {
+  if (!astroHandler || res.headersSent) return next();
+
+  const originalUrl = req.url;
+  req.url = '/404/';
+  res.once('finish', () => { req.url = originalUrl; });
+  return astroHandler(req, res, (error) => {
+    req.url = originalUrl;
+    next(error);
+  });
+});
 
 // Error handling
 app.use((err, req, res, next) => {
   console.error('Error:', err);
+  if (res.headersSent) return next(err);
   res.status(500).json({ error: 'Internal server error' });
 });
 
@@ -119,7 +175,8 @@ const startServer = async () => {
     await initDb();
     console.log('✅ Database initialized');
 
-    ({ handler: astroHandler } = await import('../dist/server/entry.mjs'));
+    const { handler } = await import('../dist/server/entry.mjs');
+    setAstroHandler(handler);
 
     // Start the server
     app.listen(PORT, () => {
@@ -137,5 +194,5 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
   startServer();
 }
 
-export { startServer };
+export { getCanonicalRedirect, setAstroHandler, startServer };
 export default app;

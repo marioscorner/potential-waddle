@@ -1,6 +1,5 @@
 User-agent: *
 Allow: /
-Disallow: /admin
 
 # Sitemap
 Sitemap: https://marioscorner.com/sitemap.xml

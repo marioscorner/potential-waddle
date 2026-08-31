@@ -4,7 +4,7 @@ export const translations = {
   es: {
     // Hero Section
     hero: {
-      welcome: "welcome",
+      welcome: "Presentación",
       greeting: "Hola, soy",
       name: 'Mario "marioscorner" Gutiérrez',
       intro: "desarrollador full stack.",
@@ -13,8 +13,8 @@ export const translations = {
     },
     // About Card
     about: {
-      label: "About",
-      title: "About me",
+      label: "Sobre mí",
+      title: "Sobre mí",
       paragraph1:
         "Vengo del mundo audiovisual, pero la programación fue ganando terreno hasta convertirse en mi camino profesional.",
       paragraphFullStack:
@@ -24,7 +24,7 @@ export const translations = {
     },
     // Technologies Card
     technologies: {
-      label: "Tech Stack",
+      label: "Tecnologías",
       title: "Tecnologías",
       description: "Trabajo habitualmente con:",
     },
@@ -38,9 +38,9 @@ export const translations = {
     // Tech Stack Card (Status/Experience)
     techStack: {
       status: "Status",
-      available: "Buscando trabajo",
+      available: "Trabajando",
       statusDetail:
-        "Actualmente estoy buscando una oportunidad para seguir creciendo como desarrollador.",
+        "Actualmente formo parte del equipo de Eco Combustión.",
       experience: "Experiencia",
     },
     // Featured Project
@@ -49,9 +49,9 @@ export const translations = {
       comingSoon: "Próximamente",
       visitWeb: "Visitar web",
       description:
-        "Este proyecto nace como mi TFM y como respuesta a una necesidad real: mejorar la comunicación entre alumnos y profesores mediante un chat y centralizar toda la gestión gimnasio de Taekwondo.",
+        "Este proyecto nace como mi TFM y como respuesta a una necesidad real: mejorar la comunicación entre alumnos y profesores mediante un chat y centralizar toda la gestión del gimnasio de Taekwondo.",
       description2:
-        "He implementado un chat en tiempo real entre alumnos y profesor, así como un perfil de alumno en el que puede ver sus datos y seguir su progreso.",
+        "He implementado un chat en tiempo real entre los alumnos y el profesor, así como un perfil en el que cada alumno puede consultar sus datos y seguir su progreso.",
       cta: "Te invito a descubrirlo.",
     },
 
@@ -63,9 +63,9 @@ export const translations = {
     },
     // Meta
     meta: {
-      title: "marioscorner | Desarrollador Web",
+      title: "Mario Gutiérrez | Desarrollador Full Stack en Madrid",
       description:
-        "Portfolio personal de marioscorner. Programador Full Stack.",
+        "Portfolio de Mario Gutiérrez, desarrollador full stack en Madrid. Proyectos con TypeScript, React, Node.js, Python y PostgreSQL.",
     },
     // CV
     cv: {
@@ -85,14 +85,14 @@ export const translations = {
     projects: {
       title: "Proyectos",
       description:
-        "En mi GitHub encontrarás proyectos personales y ejemplos de mi trabajo con diferentes tecnologías y frameworks. Siempre estoy con algún proyecto entre manos, así que no dudes en echarle un vistazo de vez en cuándo.",
+        "En mi GitHub encontrarás proyectos personales y ejemplos de mi trabajo con diferentes tecnologías y frameworks. Siempre estoy con algún proyecto entre manos, así que no dudes en echarle un vistazo de vez en cuando.",
       visitGitHub: "Ver en GitHub",
     },
   },
   en: {
     // Hero Section
     hero: {
-      welcome: "welcome",
+      welcome: "Welcome",
       greeting: "Hi, I'm",
       name: 'Mario "marioscorner" Gutiérrez',
       intro: "full stack developer.",
@@ -126,9 +126,9 @@ export const translations = {
     // Tech Stack Card (Status/Experience)
     techStack: {
       status: "Status",
-      available: "Looking for work",
+      available: "Working",
       statusDetail:
-        "I'm currently looking for an opportunity to keep growing as a developer.",
+        "I'm currently part of the Eco Combustión team.",
       experience: "Experience",
     },
     // Featured Project
@@ -137,9 +137,9 @@ export const translations = {
       comingSoon: "Coming soon",
       visitWeb: "Visit website",
       description:
-        "This project was born as my Master's Thesis and as a response to a real need: improve communication between students and teachers through a chat and centralize all the management of a Taekwondo gym.",
+        "This project began as my Master's Thesis and addresses a real need: improving communication between students and instructors through chat while centralizing the management of a Taekwondo gym.",
       description2:
-        "I have implemented a real-time chat between students and teacher, as well as a student profile where they can see their data and update it.",
+        "I implemented real-time chat between students and their instructor, plus a profile where each student can view their details and track their progress.",
       cta: "I invite you to discover it.",
     },
     // Footer
@@ -150,8 +150,8 @@ export const translations = {
     },
     // Meta
     meta: {
-      title: "marioscorner | Full Stack Developer",
-      description: "Personal portfolio of marioscorner. Full Stack Developer.",
+      title: "Mario Gutiérrez | Full Stack Developer in Madrid",
+      description: "Portfolio of Mario Gutiérrez, a full stack developer in Madrid. Projects built with TypeScript, React, Node.js, Python and PostgreSQL.",
     },
     // CV
     cv: {

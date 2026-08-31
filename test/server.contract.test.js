@@ -29,9 +29,31 @@ test('Express health and unknown API routes keep their public contract', async (
   assert.deepEqual(JSON.parse(response.body), { error: 'Not found' });
 });
 
-test('www requests are permanently redirected to the canonical host', async (t) => {
-  t.after(() => new Promise((resolve) => server.close(resolve)));
+test('www requests are permanently redirected to the canonical host', async () => {
   const response = await send('/es/?source=test', { host: 'www.marioscorner.com' });
   assert.equal(response.status, 301);
   assert.equal(response.headers.location, 'https://marioscorner.com/es/?source=test');
+
+  const root = await send('/', { host: 'www.marioscorner.com' });
+  assert.equal(root.status, 301);
+  assert.equal(root.headers.location, 'https://marioscorner.com/es/');
+});
+
+test('public page aliases redirect directly to their canonical URLs', async (t) => {
+  t.after(() => new Promise((resolve) => server.close(resolve)));
+  const root = await send('/');
+  assert.equal(root.status, 301);
+  assert.equal(root.headers.location, 'https://marioscorner.com/es/');
+
+  const english = await send('/en?source=test');
+  assert.equal(english.status, 301);
+  assert.equal(english.headers.location, 'https://marioscorner.com/en/?source=test');
+
+  const admin = await send('/admin');
+  assert.equal(admin.status, 301);
+  assert.equal(admin.headers.location, 'https://marioscorner.com/admin/');
+
+  const uploadedCv = await send('/uploads/cv-es.pdf');
+  assert.equal(uploadedCv.status, 301);
+  assert.equal(uploadedCv.headers.location, 'https://marioscorner.com/cv-es.pdf');
 });

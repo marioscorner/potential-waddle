@@ -41,15 +41,13 @@ const experiences = Array.isArray(content.experience) ? sortExperiences(content.
 const technologies = Array.isArray(content.technologies?.items) ? content.technologies.items : [];
 const socialLinks = Array.isArray(content.social) ? content.social : [];
 const socialIcons = { FaLinkedin, FaGithub, FaInstagram, Globe2 };
-const cvUpload = uploads.find((upload) => upload.slot === `cv-${language}`)
-  || uploads.find((upload) => upload.document_type === 'cv' && upload.language === language);
 const photoUpload = uploads.find((upload) => upload.slot === 'hero-photo');
 const versionedUrl = (upload: any, fallback: string) => {
   if (!upload?.url) return fallback;
   const cacheKey = upload.updated_at || upload.created_at;
   return `${upload.url}${cacheKey ? `?v=${encodeURIComponent(cacheKey)}` : ''}`;
 };
-const cvUrl = versionedUrl(cvUpload, language === 'es' ? '/cv-es.pdf' : '/cv-en.pdf');
+const cvUrl = language === 'es' ? '/cv-es.pdf' : '/cv-en.pdf';
 const heroPhotoUrl = versionedUrl(photoUpload, '/MY_PHOTO.webp');
 const siteUrl = 'https://marioscorner.com';
 const canonical = `${siteUrl}/${language}/`;
@@ -61,26 +59,48 @@ const safeExternalUrl = (value: unknown) => {
     return '#';
   }
 };
+const personName = hero.name.replace(/\s*"marioscorner"\s*/i, ' ').replace(/\s+/g, ' ').trim();
+const profileUrls = [...new Set([
+  ...socialLinks.map((link) => safeExternalUrl(link.url)),
+  safeExternalUrl(content.projects?.url),
+].filter((url) => url !== '#'))];
+const absoluteHeroPhotoUrl = new URL(heroPhotoUrl, siteUrl).href;
 const schema = JSON.stringify({
   '@context': 'https://schema.org',
   '@graph': [
-    { '@type': 'WebSite', name: 'marioscorner', url: siteUrl, inLanguage: language },
+    {
+      '@type': 'WebSite',
+      '@id': `${siteUrl}/#website`,
+      name: 'marioscorner',
+      url: `${siteUrl}/`,
+      inLanguage: ['es', 'en'],
+    },
     {
       '@type': 'ProfilePage',
+      '@id': `${canonical}#profile`,
+      url: canonical,
+      name: meta.title,
+      description: meta.description,
+      inLanguage: language,
+      isPartOf: { '@id': `${siteUrl}/#website` },
       mainEntity: {
         '@type': 'Person',
-        name: hero.name,
-        url: canonical,
-        image: `${siteUrl}/MY_PHOTO.png`,
+        '@id': `${siteUrl}/#person`,
+        name: personName,
+        alternateName: 'marioscorner',
+        url: `${siteUrl}/`,
+        image: absoluteHeroPhotoUrl,
         jobTitle: language === 'es' ? 'Desarrollador full stack' : 'Full stack developer',
-        sameAs: socialLinks.map((link) => safeExternalUrl(link.url)).filter((url) => url !== '#'),
+        description: about.paragraph1,
+        homeLocation: { '@type': 'Place', name: contact.location },
+        sameAs: profileUrls,
       },
     },
   ],
 }).replaceAll('<', '\\u003c');
 ---
 
-<SiteLayout language={language} title={meta.title} description={meta.description} schema={schema}>
+<SiteLayout language={language} title={meta.title} description={meta.description} schema={schema} image={absoluteHeroPhotoUrl}>
   <main id="main-content" class="bg-dot-pattern relative flex min-h-screen flex-1 flex-col">
     <div class="fixed right-4 top-4 z-50 flex gap-2">
       <a
@@ -103,7 +123,7 @@ const schema = JSON.stringify({
             <div class="animate-fade-in opacity-0" style="animation-delay: 0ms">
               <header class="bento-card flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
                 <div class="flex-1 space-y-2">
-                  <div class="flex items-center gap-2"><Hand className="h-4 w-4 text-primary" /><span class="section-label">welcome</span></div>
+                  <div class="flex items-center gap-2"><Hand className="h-4 w-4 text-primary" /><span class="section-label">{t.hero.welcome}</span></div>
                   <div class="space-y-1">
                     <h1 class="text-lg leading-relaxed text-foreground">{hero.greeting} <span class="font-semibold">{hero.name}</span>, {hero.intro}</h1>
                     <p class="text-sm text-muted-foreground">{hero.cta}</p>
@@ -117,14 +137,14 @@ const schema = JSON.stringify({
                   </div>
                 </div>
                 <div class="h-28 w-28 shrink-0 overflow-hidden rounded-xl bg-gradient-to-br from-gray-700 to-gray-800 sm:h-32 sm:w-32">
-                  <img src={heroPhotoUrl} alt={`Photo of ${hero.name || 'Mario'}`} class="h-full w-full object-cover" width="512" height="512" fetchpriority="high" decoding="async" />
+                  <img src={heroPhotoUrl} alt={language === 'es' ? `Foto de ${personName}` : `Photo of ${personName}`} class="h-full w-full object-cover" width="512" height="512" fetchpriority="high" decoding="async" />
                 </div>
               </header>
             </div>
 
             <div class="animate-fade-in opacity-0" style="animation-delay: 100ms">
               <section class="bento-card flex flex-col" aria-labelledby="about-title">
-                <div class="mb-1 flex items-center gap-2"><User className="h-4 w-4 text-primary" /><h2 id="about-title" class="section-label">{t.about.label}</h2></div>
+                <div class="mb-1 flex items-center gap-2"><User className="h-4 w-4 text-primary" /><h2 id="about-title" class="section-label">{about.title || t.about.title}</h2></div>
                 <div class="space-y-1 text-sm leading-relaxed text-muted-foreground"><p>{about.paragraph1}</p><p>{about.paragraphFullStack}</p><p>{about.paragraph2}</p></div>
               </section>
             </div>
@@ -166,11 +186,11 @@ const schema = JSON.stringify({
 
           <div class="flex h-full flex-col gap-2">
             <div class="animate-fade-in opacity-0" style="animation-delay: 700ms">
-              <section class="bento-card" aria-labelledby="technologies-title"><div class="mb-1 flex items-center gap-2"><Code2 className="h-4 w-4 text-primary" /><h2 id="technologies-title" class="section-label">{t.technologies.label}</h2></div><div class="grid grid-cols-2 gap-1.5">{technologies.map((technology) => <span class="inline-flex items-center justify-center rounded-md border border-primary/20 bg-primary/10 px-2.5 py-1 text-sm font-medium text-primary">{technology}</span>)}</div></section>
+              <section class="bento-card" aria-labelledby="technologies-title"><div class="mb-1 flex items-center gap-2"><Code2 className="h-4 w-4 text-primary" /><h2 id="technologies-title" class="section-label">{t.technologies.title}</h2></div><div class="grid grid-cols-2 gap-1.5">{technologies.map((technology) => <span class="inline-flex items-center justify-center rounded-md border border-primary/20 bg-primary/10 px-2.5 py-1 text-sm font-medium text-primary">{technology}</span>)}</div></section>
             </div>
 
             <div class="animate-fade-in opacity-0" style="animation-delay: 800ms">
-              <section class="bento-card" aria-labelledby="experience-title"><div class="mb-1 flex items-center gap-2"><Briefcase className="h-4 w-4 text-primary" /><h2 id="experience-title" class="section-label">{t.techStack.experience}</h2></div><div class="space-y-1">{experiences.map((job, index) => <article class="space-y-1"><h3 class="text-base font-semibold">{job.position?.[language]}</h3><p class="text-sm font-medium text-muted-foreground">{job.company}</p><time class="text-xs text-muted-foreground" datetime={job.startDate}>{formatExperiencePeriod(job, language)}</time>{job.responsibilities?.[language]?.length > 0 && <ul class="mt-2 space-y-1">{job.responsibilities[language].map((responsibility) => <li class="text-xs leading-relaxed text-muted-foreground">{responsibility}</li>)}</ul>}{index < experiences.length - 1 && <div class="mt-1 border-t border-border pt-1" />}</article>)}</div></section>
+              <section class="bento-card" aria-labelledby="experience-title"><div class="mb-1 flex items-center gap-2"><Briefcase className="h-4 w-4 text-primary" /><h2 id="experience-title" class="section-label">{t.techStack.experience}</h2></div><div class="space-y-1">{experiences.map((job, index) => <article class="space-y-1"><h3 class="text-base font-semibold">{job.position?.[language]}</h3><p class="text-sm font-medium text-muted-foreground">{job.company}</p><time class="text-xs text-muted-foreground" datetime={job.startDate}>{formatExperiencePeriod(job, language)}</time>{job.responsibilities?.[language]?.length > 0 && <ul class="mt-2 list-disc space-y-1 pl-4">{job.responsibilities[language].map((responsibility) => <li class="text-xs leading-relaxed text-muted-foreground">{responsibility}</li>)}</ul>}{index < experiences.length - 1 && <div class="mt-1 border-t border-border pt-1" />}</article>)}</div></section>
             </div>
 
             <div class="animate-fade-in opacity-0" style="animation-delay: 900ms">

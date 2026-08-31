@@ -66,6 +66,28 @@ Copy the output to `SESSION_SECRET` in your `.env` file.
 
 On your production server:
 
+The Astro deployment starts with a new PostgreSQL database. If a final archive
+of the old database is required, create it before deleting the old volume:
+
+```bash
+mkdir -p backups
+docker compose exec -T postgres pg_dump -U portfolio -Fc portfolio > backups/portfolio-before-astro.dump
+tar -czf backups/uploads-before-astro.tar.gz uploads
+git rev-parse HEAD > backups/previous-commit.txt
+```
+
+After confirming that the archive is readable, stop the old stack and remove
+its PostgreSQL volume. This operation is intentionally destructive and must not
+be run until the new-database decision is confirmed:
+
+```bash
+docker compose down --volumes
+```
+
+The next startup applies `001_initial_schema.sql` to an empty PostgreSQL volume.
+Astro serves the bundled default content and assets until sections or uploads
+are changed through the admin interface.
+
 ```bash
 # Copy/clone the repository
 git clone <your-repo-url> my-digital-canvas
@@ -74,15 +96,21 @@ cd my-digital-canvas
 # Verify your .env file is in place
 ls -la .env
 
-# Build and start the services
+# Run the local quality gates
+pnpm install --frozen-lockfile
+pnpm test
+pnpm lint
+pnpm build
+
+# Build and start the services only after the gates pass
 docker compose up -d --build
 ```
 
 The deployment includes:
 
-- **PostgreSQL** (port 15432 internal only)
+- **PostgreSQL** (port 15432 bound to the server loopback interface only)
 - **Node.js/Express** backend (port 3000, proxied through Traefik)
-- **React** frontend (built and served by Express)
+- **Astro SSR** for public pages, with React islands for the admin interface
 - **Traefik** reverse proxy with Let's Encrypt HTTPS
 
 ### Verify Deployment
@@ -109,9 +137,25 @@ curl https://marioscorner.com/health
 
 Expected response: `healthy`
 
+Verify the public route and indexing contracts:
+
+```bash
+curl -I https://marioscorner.com/
+curl -I https://marioscorner.com/es
+curl -I https://marioscorner.com/en
+curl -I https://www.marioscorner.com/en/
+curl -I https://marioscorner.com/does-not-exist
+curl -s https://marioscorner.com/es/ | grep -E 'canonical|hreflang|application/ld\+json'
+curl -s https://marioscorner.com/robots.txt
+curl -s https://marioscorner.com/sitemap.xml
+```
+
+The first four requests must redirect directly to the canonical apex URL, the
+unknown URL must return `404`, and `/es/` and `/en/` must return rendered HTML.
+
 ## Step 4: Access the Admin Panel
 
-Navigate to: `https://marioscorner.com/admin`
+Navigate to: `https://marioscorner.com/admin/`
 
 1. Log in with username: `admin` and the password you generated in Step 1
 2. The dashboard allows you to edit all portfolio content
@@ -126,13 +170,13 @@ Key directories for production:
 ├── .env                     # Production environment variables (not in git)
 ├── docker-compose.yml       # Docker services definition
 ├── Dockerfile               # Node.js app build
-├── dist/                    # Built React app (auto-generated)
+├── dist/                    # Built Astro server and client output
 ├── server/                  # Express backend
 │   ├── index.js            # Main server
 │   ├── db/                 # Database initialization
 │   ├── routes/             # API endpoints
 │   └── middleware/         # Authentication
-├── src/                     # React source code
+├── src/                     # Astro pages and React admin islands
 ├── uploads/                 # User uploaded files (persistent volume)
 ├── letsencrypt/            # HTTPS certificates (auto-managed by Traefik)
 └── data/                   # Additional persistent data
@@ -176,6 +220,18 @@ docker compose up -d --build
 ### Update Content/Translations
 
 Use the admin panel at `/admin` to edit all content. No rebuilds needed!
+
+### Rollback
+
+If route, admin, API, or data validation fails, rebuild the commit recorded in
+`backups/previous-commit.txt` and restart only the `web` service. The archived
+old database is not restored into Astro unless a separate data-import decision
+is made.
+
+After a successful deployment, submit `https://marioscorner.com/sitemap.xml`
+in Google Search Console and inspect `/es/` and `/en/`. Monitor indexing,
+canonical selection, Core Web Vitals, and structured data without requesting
+repeated recrawls.
 
 ## Troubleshooting
 
