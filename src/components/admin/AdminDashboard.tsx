@@ -1014,10 +1014,10 @@ const AdminDashboard = () => {
                   <textarea id={`meta-description-${language}`} maxLength={160} value={description} onChange={(event) => updateNestedContent(language, 'description', event.target.value)} className="min-h-28 w-full resize-y rounded-xl border border-white/10 bg-gray-900/80 px-4 py-3 text-white outline-none focus:border-primary" />
                   <p className={`mt-1 text-xs ${description.length > 150 ? 'text-amber-300' : 'text-gray-500'}`}>{description.length}/160</p>
                 </div>
-                <div className="rounded-xl border border-white/10 bg-white px-4 py-3 text-gray-900">
-                  <p className="text-xs text-green-700">marioscorner.com/{language}/</p>
-                  <p className="mt-1 text-lg leading-tight text-blue-700">{title || 'Page title'}</p>
-                  <p className="mt-1 text-sm text-gray-600">{description || 'Meta description preview'}</p>
+                <div className="rounded-xl border border-white/10 bg-[#111114] px-4 py-3 text-gray-100">
+                  <p className="text-xs text-emerald-400">marioscorner.com/{language}/</p>
+                  <p className="mt-1 text-lg leading-tight text-sky-400">{title || 'Page title'}</p>
+                  <p className="mt-1 text-sm text-gray-400">{description || 'Meta description preview'}</p>
                 </div>
               </div>
             </section>
