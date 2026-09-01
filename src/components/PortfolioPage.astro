@@ -136,7 +136,7 @@ const copy = language === 'es'
           </nav>
           <div class="rail-meta">
             <p class="rail-location"><MapPin aria-hidden="true" />{contact.location}</p>
-            <p class="rail-caption">{language === 'es' ? 'Disponible para construir lo que importa.' : 'Available to build what matters.'}</p>
+            <p class="rail-caption"><span class="live-dot" style={`background-color: ${content.status?.indicatorColor || '#22c55e'}`}></span>{status.statusDetail}</p>
             <p class="rail-credit">© {new Date().getFullYear()} · {content.footer?.[language]?.madeWith || t.footer.madeWith} <span>♥</span> {content.footer?.[language]?.by || t.footer.by} {content.footer?.[language]?.name || t.footer.name}</p>
           </div>
         </aside>
@@ -146,7 +146,6 @@ const copy = language === 'es'
           <section class="hero-section viewer-panel" id="intro" data-panel aria-labelledby="profile-title">
             <div class="hero-copy">
               <h1 id="profile-title">{personName}<span>{hero.intro}</span></h1>
-              <p class="hero-status"><span class="live-dot" style={`background-color: ${content.status?.indicatorColor || '#22c55e'}`}></span>{status.statusDetail}</p>
               <div class="hero-actions">
                 <a href={`mailto:${contact.email}`} class="action-link action-link-primary"><Send aria-hidden="true" />{contact.sendEmail}<ArrowUpRight aria-hidden="true" /></a>
                 <a href={cvUrl} download class="action-link"><Download aria-hidden="true" />{hero.downloadCV}</a>
