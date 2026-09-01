@@ -1092,8 +1092,8 @@ const AdminDashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-900">
-        <p className="text-gray-400">Loading...</p>
+      <div className="admin-loading">
+        <p>Loading...</p>
       </div>
     );
   }
@@ -1103,25 +1103,25 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div lang={adminLanguage} className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(255,71,147,0.18),transparent_32rem),linear-gradient(135deg,#0d0d0f_0%,#17171b_55%,#0b0b0d_100%)] text-white">
-      <a href="#admin-main" className="sr-only z-50 rounded-md bg-white px-4 py-2 text-gray-950 focus:not-sr-only focus:absolute focus:left-4 focus:top-4">Skip to editor</a>
+    <div lang={adminLanguage} className="admin-shell">
+      <a href="#admin-main" className="admin-skip">Skip to editor</a>
       {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-gray-950/75 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+      <header className="admin-topbar">
+        <div className="admin-topbar-inner">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-primary">marioscorner</p>
-            <h1 className="text-2xl font-bold text-white">Admin Dashboard</h1>
+            <p className="admin-kicker">marioscorner / control</p>
+            <h1 className="admin-title">Admin Dashboard</h1>
           </div>
 
           <div className="flex items-center gap-3">
             <label htmlFor="admin-language" className="sr-only">Panel language</label>
-            <select id="admin-language" value={adminLanguage} onChange={(event) => setAdminLanguage(event.target.value as AdminLanguage)} className="rounded-full border border-white/10 bg-gray-900 px-3 py-2 text-sm text-white focus:border-primary focus:outline-none">
+            <select id="admin-language" value={adminLanguage} onChange={(event) => setAdminLanguage(event.target.value as AdminLanguage)} className="admin-select">
               <option value="es">ES</option>
               <option value="en">EN</option>
             </select>
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-white transition-colors hover:border-primary/60 hover:bg-primary/10"
+            className="admin-utility-button"
           >
             <LogOut className="w-4 h-4" />
             {copy.logout}
@@ -1135,7 +1135,7 @@ const AdminDashboard = () => {
         <div
           role={message.type === 'error' ? 'alert' : 'status'}
           aria-live="polite"
-          className={`mx-auto max-w-7xl mt-4 px-4 sm:px-6 lg:px-8 p-4 rounded-lg flex gap-3 ${
+          className={`admin-message ${
             message.type === 'success'
               ? 'bg-green-500/10 border border-green-500/50'
               : 'bg-red-500/10 border border-red-500/50'
@@ -1157,25 +1157,25 @@ const AdminDashboard = () => {
       )}
 
       {/* Main Content */}
-      <main id="admin-main" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <main id="admin-main" className="admin-main">
+        <div className="admin-layout">
           {/* Sidebar Navigation */}
           <div className="lg:col-span-1">
-            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 shadow-2xl shadow-black/20 backdrop-blur">
-              <h2 className="text-sm font-semibold text-gray-300 mb-4 uppercase tracking-wide">
+            <div className="admin-sidebar">
+              <h2 className="admin-sidebar-title">
                 {copy.sections}
               </h2>
-              <nav className="space-y-2" aria-label={copy.sections}>
+              <nav className="admin-nav" aria-label={copy.sections}>
                 {tabs.map(
                   (tab) => (
                     <button
                       key={tab}
                       onClick={() => handleTabChange(tab)}
                       aria-current={activeTab === tab ? 'page' : undefined}
-                      className={`w-full rounded-xl px-4 py-2.5 text-left text-sm font-medium transition-all ${
+                      className={`admin-nav-item ${
                         activeTab === tab
-                          ? 'bg-primary text-white shadow-lg shadow-primary/20'
-                          : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                          ? 'admin-nav-item-active'
+                          : ''
                       }`}
                     >
                       {getSectionLabel(tab, adminLanguage)}
@@ -1188,11 +1188,11 @@ const AdminDashboard = () => {
 
           {/* Content Editor */}
           <div className="lg:col-span-3">
-            <div className="rounded-3xl border border-white/10 bg-gray-950/60 p-6 shadow-2xl shadow-black/30 backdrop-blur">
-              <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="admin-editor">
+              <div className="admin-editor-header">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-gray-500">{copy.editing}</p>
-                  <h2 className="text-2xl font-bold text-white">{getSectionLabel(activeTab, adminLanguage)}</h2>
+                  <p className="admin-kicker">{copy.editing}</p>
+                  <h2 className="admin-editor-title">{getSectionLabel(activeTab, adminLanguage)}</h2>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                   <a href="/es/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm font-medium text-gray-200 hover:bg-white/10">
