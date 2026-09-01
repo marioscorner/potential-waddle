@@ -100,8 +100,8 @@ const schema = JSON.stringify({
   ],
 }).replaceAll('<', '\\u003c');
 const copy = language === 'es'
-  ? { index: 'Índice', notes: 'Notas de perfil', current: 'Ahora', contact: 'Contacto', project: 'Proyecto' }
-  : { index: 'Index', notes: 'Profile notes', current: 'Now', contact: 'Contact', project: 'Project' };
+  ? { index: 'Índice', profile: 'Perfil profesional', current: 'Ahora', contact: 'Contacto', project: 'Proyecto' }
+  : { index: 'Index', profile: 'Professional profile', current: 'Now', contact: 'Contact', project: 'Project' };
 ---
 
 <SiteLayout language={language} title={meta.title} description={meta.description} schema={schema} image={absoluteHeroPhotoUrl}>
@@ -130,14 +130,13 @@ const copy = language === 'es'
 
       <div class="portfolio-grid" id="profile-content">
         <aside class="profile-rail" aria-label={copy.index}>
-          <p class="eyebrow">{copy.index} / 00-05</p>
+          <p class="eyebrow">{copy.index} / 00-04</p>
           <nav class="profile-nav">
             <a href="#intro" aria-controls="intro">00 <span>{language === 'es' ? 'Inicio' : 'Start'}</span></a>
             <a href="#about" aria-controls="about">01 <span>{about.title || t.about.title}</span></a>
-            <a href="#experience" aria-controls="experience">02 <span>{sectionTitles.experience || t.techStack.experience}</span></a>
+            <a href="#experience" aria-controls="experience">02 <span>{copy.profile}</span></a>
             <a href="#project" aria-controls="project">03 <span>{copy.project}</span></a>
-            <a href="#notes" aria-controls="notes">04 <span>{copy.notes}</span></a>
-            <a href="#contact" aria-controls="contact">05 <span>{copy.contact}</span></a>
+            <a href="#contact" aria-controls="contact">04 <span>{copy.contact}</span></a>
           </nav>
           <p class="rail-caption">{language === 'es' ? 'Madrid · disponible para construir lo que importa.' : 'Madrid · available to build what matters.'}</p>
         </aside>
@@ -173,22 +172,38 @@ const copy = language === 'es'
           </section>
 
           <section class="experience-section viewer-panel" id="experience" data-panel aria-labelledby="experience-title">
-            <div class="section-marker"><span>02</span><h2 id="experience-title">{sectionTitles.experience || t.techStack.experience}</h2></div>
-            <div class="experience-list">
-              {experiences.map((job) => (
-                <article class="experience-entry">
-                  <time datetime={job.startDate}>{formatExperiencePeriod(job, language)}</time>
-                  <div>
-                    <p class="experience-company">{job.company}</p>
-                    <h3>{job.position?.[language]}</h3>
-                    {job.responsibilities?.[language]?.length > 0 && (
-                      <ul>
-                        {job.responsibilities[language].map((responsibility) => <li>{responsibility}</li>)}
-                      </ul>
-                    )}
-                  </div>
-                </article>
-              ))}
+            <div class="section-marker"><span>02</span><h2 id="experience-title">{copy.profile}</h2></div>
+            <div class="experience-content">
+              <div class="experience-list">
+                {experiences.map((job) => (
+                  <article class="experience-entry">
+                    <time datetime={job.startDate}>{formatExperiencePeriod(job, language)}</time>
+                    <div>
+                      <p class="experience-company">{job.company}</p>
+                      <h3>{job.position?.[language]}</h3>
+                      {job.responsibilities?.[language]?.length > 0 && (
+                        <ul>
+                          {job.responsibilities[language].map((responsibility) => <li>{responsibility}</li>)}
+                        </ul>
+                      )}
+                    </div>
+                  </article>
+                ))}
+              </div>
+              <div class="notes-grid experience-notes">
+                <section class="note-block" aria-labelledby="technologies-title">
+                  <div class="note-title"><Code2 aria-hidden="true" /><h3 id="technologies-title">{sectionTitles.technologies || t.technologies.title}</h3></div>
+                  <div class="technology-list">{technologies.map((technology, index) => <span><b>{String(index + 1).padStart(2, '0')}</b>{technology}</span>)}</div>
+                </section>
+                <section class="note-block" aria-labelledby="languages-title">
+                  <div class="note-title"><Languages aria-hidden="true" /><h3 id="languages-title">{sectionTitles.languages || t.languages.title}</h3></div>
+                  <dl class="definition-list">{languages.map((item) => <div><dt>{item.name?.[language]}</dt><dd>{item.level?.[language]}</dd></div>)}</dl>
+                </section>
+                <section class="note-block" aria-labelledby="certifications-title">
+                  <div class="note-title"><Award aria-hidden="true" /><h3 id="certifications-title">{sectionTitles.certifications || t.certifications.title}</h3></div>
+                  <ul class="certification-list">{certifications.map((certification) => <li><strong>{certification.name?.[language]}</strong>{certification.issuer && <span>{certification.issuer[language]}</span>}</li>)}</ul>
+                </section>
+              </div>
             </div>
           </section>
 
@@ -207,24 +222,6 @@ const copy = language === 'es'
                 <p>{featured.cta}</p>
                 <a href={safeExternalUrl(content.featured?.url)} target="_blank" rel="noopener noreferrer" class="action-link">{featured.visitWeb}<ArrowUpRight aria-hidden="true" /></a>
               </div>
-            </div>
-          </section>
-
-          <section class="notes-section viewer-panel" id="notes" data-panel aria-labelledby="notes-title">
-            <div class="section-marker"><span>04</span><h2 id="notes-title">{copy.notes}</h2></div>
-            <div class="notes-grid">
-              <section class="note-block" aria-labelledby="technologies-title">
-                <div class="note-title"><Code2 aria-hidden="true" /><h3 id="technologies-title">{sectionTitles.technologies || t.technologies.title}</h3></div>
-                <div class="technology-list">{technologies.map((technology, index) => <span><b>{String(index + 1).padStart(2, '0')}</b>{technology}</span>)}</div>
-              </section>
-              <section class="note-block" aria-labelledby="languages-title">
-                <div class="note-title"><Languages aria-hidden="true" /><h3 id="languages-title">{sectionTitles.languages || t.languages.title}</h3></div>
-                <dl class="definition-list">{languages.map((item) => <div><dt>{item.name?.[language]}</dt><dd>{item.level?.[language]}</dd></div>)}</dl>
-              </section>
-              <section class="note-block" aria-labelledby="certifications-title">
-                <div class="note-title"><Award aria-hidden="true" /><h3 id="certifications-title">{sectionTitles.certifications || t.certifications.title}</h3></div>
-                <ul class="certification-list">{certifications.map((certification) => <li><strong>{certification.name?.[language]}</strong>{certification.issuer && <span>{certification.issuer[language]}</span>}</li>)}</ul>
-              </section>
             </div>
           </section>
 
@@ -272,13 +269,14 @@ const copy = language === 'es'
     const navigation = Array.from(document.querySelectorAll<HTMLAnchorElement>('.profile-nav a'));
     let activeIndex = 0;
     let pointerStart: { x: number; y: number } | undefined;
+    let wheelLocked = false;
 
     const selectPanel = (id: string, updateHistory = false) => {
       const nextIndex = panels.findIndex((panel) => panel.id === id);
       if (nextIndex < 0 || !track) return;
 
       activeIndex = nextIndex;
-      track.style.transform = `translateX(-${nextIndex * 100}%)`;
+      track.style.transform = `translateY(-${nextIndex * 100}%)`;
       panels.forEach((panel, index) => {
         const isActive = index === nextIndex;
         panel.classList.toggle('panel-active', isActive);
@@ -307,11 +305,11 @@ const copy = language === 'es'
     });
 
     viewer?.addEventListener('keydown', (event) => {
-      if (event.key === 'ArrowRight' || event.key === 'PageDown') {
+      if (event.key === 'ArrowDown' || event.key === 'PageDown') {
         event.preventDefault();
         selectRelativePanel(1);
       }
-      if (event.key === 'ArrowLeft' || event.key === 'PageUp') {
+      if (event.key === 'ArrowUp' || event.key === 'PageUp') {
         event.preventDefault();
         selectRelativePanel(-1);
       }
@@ -325,10 +323,18 @@ const copy = language === 'es'
       const distanceX = event.clientX - pointerStart.x;
       const distanceY = event.clientY - pointerStart.y;
       pointerStart = undefined;
-      if (Math.abs(distanceX) < 48 || Math.abs(distanceX) <= Math.abs(distanceY)) return;
-      selectRelativePanel(distanceX < 0 ? 1 : -1);
+      if (Math.abs(distanceY) < 48 || Math.abs(distanceY) <= Math.abs(distanceX)) return;
+      selectRelativePanel(distanceY < 0 ? 1 : -1);
     });
     viewer?.addEventListener('pointercancel', () => { pointerStart = undefined; });
+    viewer?.addEventListener('wheel', (event) => {
+      if (Math.abs(event.deltaY) < Math.abs(event.deltaX) || Math.abs(event.deltaY) < 12) return;
+      event.preventDefault();
+      if (wheelLocked) return;
+      wheelLocked = true;
+      selectRelativePanel(event.deltaY > 0 ? 1 : -1);
+      window.setTimeout(() => { wheelLocked = false; }, 650);
+    }, { passive: false });
 
     const selectHashPanel = () => selectPanel(window.location.hash.slice(1) || 'intro');
     window.addEventListener('hashchange', selectHashPanel);
