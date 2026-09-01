@@ -99,8 +99,8 @@ const schema = JSON.stringify({
   ],
 }).replaceAll('<', '\\u003c');
 const copy = language === 'es'
-  ? { index: 'Índice', profile: 'Perfil profesional', contact: 'Contacto', project: 'Proyecto' }
-  : { index: 'Index', profile: 'Professional profile', contact: 'Contact', project: 'Project' };
+  ? { index: 'Índice', profile: 'Perfil profesional', profileHeading: 'Mi recorrido profesional', aboutHeading: '¿Quién soy?', contact: 'Contacto', project: 'Proyecto' }
+  : { index: 'Index', profile: 'Professional profile', profileHeading: 'My professional journey', aboutHeading: 'Who am I?', contact: 'Contact', project: 'Project' };
 ---
 
 <SiteLayout language={language} title={meta.title} description={meta.description} schema={schema} image={absoluteHeroPhotoUrl}>
@@ -147,6 +147,7 @@ const copy = language === 'es'
             <div class="hero-copy">
               <h1 id="profile-title">{personName}<span>{hero.intro}</span></h1>
               <p class="hero-status"><span class="live-dot" style={`background-color: ${content.status?.indicatorColor || '#22c55e'}`}></span>{status.statusDetail}</p>
+              <p class="hero-intro">{hero.cta}</p>
               <div class="hero-actions">
                 <a href={`mailto:${contact.email}`} class="action-link action-link-primary"><Send aria-hidden="true" />{contact.sendEmail}<ArrowUpRight aria-hidden="true" /></a>
                 <a href={cvUrl} download class="action-link"><Download aria-hidden="true" />{hero.downloadCV}</a>
@@ -155,8 +156,8 @@ const copy = language === 'es'
           </section>
 
           <section class="about-section viewer-panel" id="about" data-panel aria-labelledby="about-title">
-            <h2 id="about-title" class="sr-only">{about.title || t.about.title}</h2>
             <div class="about-copy">
+              <h2 id="about-title" class="section-display-title">{copy.aboutHeading}</h2>
               <p class="about-lead">{about.paragraph1}</p>
               <p>{about.paragraphFullStack}</p>
               <p>{about.paragraph2}</p>
@@ -169,7 +170,7 @@ const copy = language === 'es'
           </section>
 
           <section class="experience-section viewer-panel" id="experience" data-panel aria-labelledby="experience-title">
-            <h2 id="experience-title" class="sr-only">{copy.profile}</h2>
+            <h2 id="experience-title" class="section-display-title">{copy.profileHeading}</h2>
             <div class="experience-content">
               <div class="experience-list">
                 {experiences.map((job) => (

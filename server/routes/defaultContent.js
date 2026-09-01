@@ -56,13 +56,13 @@ const defaultContent = {
 
   contact: {
     es: {
-      title: "¡Vamos a trabajar juntos!",
+      title: "Contacta conmigo",
       email: "hello@marioscorner.com",
       location: "Madrid",
       sendEmail: "Enviar email",
     },
     en: {
-      title: "Let's work together!",
+      title: "Let's get in touch",
       email: "hello@marioscorner.com",
       location: "Madrid",
       sendEmail: "Send email",

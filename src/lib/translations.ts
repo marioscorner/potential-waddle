@@ -31,7 +31,7 @@ export const translations = {
     // Contact Card
     contact: {
       label: "Contact",
-      title: "¡Vamos a trabajar juntos!",
+      title: "Contacta conmigo",
       contactDetails: "Contact Details",
       sendEmail: "Enviar email",
     },
@@ -119,7 +119,7 @@ export const translations = {
     // Contact Card
     contact: {
       label: "Contact",
-      title: "Let's work together!",
+      title: "Let's get in touch",
       contactDetails: "Contact Details",
       sendEmail: "Send email",
     },

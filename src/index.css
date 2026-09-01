@@ -121,6 +121,7 @@
   .hero-copy h1 { max-width: 46rem; margin: 0; font-size: clamp(3rem, 8vw, 8rem); font-weight: 700; letter-spacing: -.085em; line-height: .86; }
   .hero-copy h1 span { display: block; margin-top: .32em; color: hsl(var(--primary)); font-size: .46em; font-weight: 500; letter-spacing: -.055em; line-height: 1; }
   .hero-status { display: flex; align-items: flex-start; gap: .65rem; max-width: 34rem; margin: 1.5rem 0 0; color: hsl(var(--muted-foreground)); font: .78rem ui-monospace, monospace; line-height: 1.6; }
+  .hero-intro { max-width: 40rem; margin: 1rem 0 0; color: hsl(var(--foreground)); font-size: clamp(.98rem, 1.25vw, 1.12rem); line-height: 1.55; }
   .hero-actions { display: flex; flex-wrap: wrap; gap: .7rem; margin-top: 1.5rem; }
   .action-link { display: inline-flex; align-items: center; justify-content: center; gap: .6rem; min-height: 2.85rem; padding: .65rem 1rem; border: 1px solid hsl(var(--border)); color: hsl(var(--foreground)); background: transparent; font-size: .87rem; font-weight: 600; text-decoration: none; transition: border-color .2s, background-color .2s, color .2s, transform .2s; }
   .action-link svg { width: 1rem; height: 1rem; }
@@ -136,6 +137,8 @@
 
   .about-section { display: grid; grid-template-columns: minmax(0, 1fr) minmax(13rem, .45fr); gap: clamp(2rem, 5vw, 5rem); align-items: center; padding: clamp(2rem, 5vw, 4rem) clamp(1.5rem, 5vw, 5rem); border-bottom: 1px solid hsl(var(--border)); }
   .experience-section { display: block; padding: clamp(1.5rem, 4vw, 3rem) clamp(1.5rem, 5vw, 5rem); border-bottom: 1px solid hsl(var(--border)); }
+  .section-display-title { max-width: 14ch; margin: 0 0 1.5rem; color: hsl(var(--foreground)); font-size: clamp(2rem, 4.1vw, 4.1rem); font-weight: 700; letter-spacing: -.07em; line-height: .98; text-wrap: balance; }
+  .experience-section > .section-display-title { margin-bottom: 2rem; }
   .about-copy { max-width: 48rem; }
   .about-copy p { margin: 0; color: hsl(var(--muted-foreground)); font-size: clamp(.94rem, 1.25vw, 1.08rem); line-height: 1.62; }
   .about-copy p + p { margin-top: .9rem; }
@@ -145,16 +148,16 @@
   .experience-list { border-top: 1px solid hsl(var(--border)); }
   .experience-content { min-width: 0; }
   .experience-entry { display: grid; grid-template-columns: 9rem minmax(0, 1fr); gap: 1.2rem; padding: 1rem 0; border-bottom: 1px solid hsl(var(--border)); }
-  .experience-entry time { color: hsl(var(--primary)); font-size: .68rem; line-height: 1.5; }
+  .experience-entry time { color: hsl(var(--primary)); font-size: .72rem; font-weight: 700; line-height: 1.5; }
   .experience-company { margin: 0 0 .3rem; color: hsl(var(--muted-foreground)); font-size: .84rem; font-weight: 600; }
   .experience-entry h3 { margin: 0; font-size: clamp(1.15rem, 1.8vw, 1.5rem); letter-spacing: -.03em; }
   .experience-entry ul { margin: .55rem 0 0; padding-left: 1rem; color: hsl(var(--muted-foreground)); font-size: .8rem; line-height: 1.45; }
   .experience-entry li + li { margin-top: .15rem; }
 
   .featured-section { position: relative; display: flex; flex-direction: column; justify-content: center; padding: clamp(1.75rem, 4vw, 3.5rem); border-bottom: 1px solid hsl(var(--border)); border-left: .28rem solid hsl(var(--primary)); background: hsl(var(--card) / .94); color: hsl(var(--foreground)); }
-  .featured-heading { display: flex; justify-content: flex-end; }
+  .featured-heading { display: flex; justify-content: flex-start; }
   .project-stamp { padding: .35rem .55rem; border: 1px solid hsl(var(--primary) / .55); color: hsl(var(--primary)); font-size: .62rem; letter-spacing: .08em; text-transform: uppercase; }
-  .featured-body { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(13rem, .6fr); gap: clamp(2rem, 5vw, 5rem); margin-top: clamp(1.5rem, 4vw, 3.5rem); }
+  .featured-body { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(13rem, .6fr); gap: clamp(2rem, 5vw, 5rem); margin-top: clamp(1rem, 2vw, 1.75rem); }
   .featured-body h2 { max-width: 42rem; margin: 0 0 1.5rem; font-size: clamp(2rem, 4vw, 4.5rem); letter-spacing: -.07em; line-height: .95; }
   .featured-body p { max-width: 42rem; margin: 0; font-size: 1rem; line-height: 1.7; }
   .featured-body p + p { margin-top: 1rem; }
@@ -195,7 +198,21 @@
 
   @media (min-width: 1440px) {
     .hero-copy, .experience-content, .featured-heading, .featured-body { width: min(100%, 104rem); margin-right: auto; margin-left: auto; }
+    .experience-section > .section-display-title { width: min(100%, 104rem); margin-right: auto; margin-left: auto; margin-bottom: 2rem; }
     .about-section, .contact-section { width: min(100%, 104rem); margin-right: auto; margin-left: auto; }
+  }
+
+  @media (min-width: 1024px) {
+    .hero-status { font-size: .84rem; }
+    .action-link { font-size: .93rem; }
+    .about-copy p { font-size: clamp(1rem, 1.35vw, 1.16rem); }
+    .experience-company { font-size: .9rem; }
+    .experience-entry ul { font-size: .87rem; line-height: 1.5; }
+    .note-title h3, .definition-list dt, .certification-list strong { font-size: .94rem; }
+    .technology-list span { font-size: .83rem; }
+    .definition-list dd, .certification-list span, .projects-note { font-size: .85rem; }
+    .featured-body p { font-size: 1.08rem; }
+    .social-list a { font-size: .84rem; }
   }
 }
 
