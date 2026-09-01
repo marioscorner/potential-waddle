@@ -2,6 +2,7 @@ import express from 'express';
 import { rateLimit } from 'express-rate-limit';
 import argon2 from 'argon2';
 import { verifyPassword, requireAuth } from '../middleware/auth.js';
+import { getAuditLog, pool } from '../db/queries.js';
 
 const router = express.Router();
 
@@ -58,8 +59,14 @@ router.post('/login', loginRateLimit, async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    req.session.authenticated = true;
-    req.session.user = username;
+    await new Promise((resolve, reject) => {
+      req.session.regenerate((sessionError) => {
+        if (sessionError) return reject(sessionError);
+        req.session.authenticated = true;
+        req.session.user = username;
+        resolve();
+      });
+    });
     res.json({ success: true, user: username });
   } catch (error) {
     console.error('Login error:', error);
@@ -73,8 +80,37 @@ router.post('/logout', (req, res) => {
     if (err) {
       return res.status(500).json({ error: 'Logout failed' });
     }
+    res.clearCookie('connect.sid');
     res.json({ success: true });
   });
+});
+
+router.post('/logout-other-sessions', requireAuth, async (req, res) => {
+  try {
+    await pool.query(
+      'DELETE FROM session WHERE (sess::jsonb ->> \'user\') = $1 AND sid <> $2',
+      [req.session.user, req.sessionID]
+    );
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Failed to close other sessions:', error);
+    res.status(500).json({ error: 'Failed to close other sessions' });
+  }
+});
+
+router.get('/operations', requireAuth, async (_req, res) => {
+  try {
+    await pool.query('SELECT 1');
+    const [lastActivity] = await getAuditLog(1);
+    res.json({
+      database: 'connected',
+      lastActivity: lastActivity?.created_at || null,
+      checkedAt: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error('Failed to read operations status:', error);
+    res.status(503).json({ error: 'Database unavailable' });
+  }
 });
 
 // GET /api/auth/me

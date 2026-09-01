@@ -3,7 +3,7 @@ import multer from 'multer';
 import path from 'path';
 import { promises as fs } from 'fs';
 import sharp from 'sharp';
-import { getUploads, upsertUploadBySlot, deleteUpload, logAudit } from '../db/queries.js';
+import { getUploads, createUploadVersion, activateUpload, deleteUpload, logAudit } from '../db/queries.js';
 import { requireAuth } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -28,6 +28,12 @@ const UPLOAD_TARGETS = {
     documentType: 'hero-photo',
     allowedMimes: ['image/jpeg', 'image/png', 'image/webp'],
   },
+};
+
+const getTimestampedFilename = (prefix, extension) => {
+  const timestamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z');
+  const random = Math.random().toString(36).slice(2, 8);
+  return `${prefix}-${timestamp}-${random}.${extension}`;
 };
 
 const createRequestError = (message, status = 400) => Object.assign(new Error(message), { status });
@@ -107,54 +113,40 @@ const getFileMimeType = async (filePath) => {
   return null;
 };
 
-const replaceUploadFile = async (sourcePath, target, file) => {
-  const destinationPath = getUploadPath(target.filename);
-  const backupPath = getUploadPath(`${target.filename}.backup-${Date.now()}`);
+const createUploadFile = async (sourcePath, target, file) => {
+  const extension = target.documentType === 'hero-photo' ? 'webp' : 'pdf';
+  const prefix = target.documentType === 'hero-photo' ? 'hero-photo' : target.filename.replace(/\.pdf$/, '');
+  const filename = getTimestampedFilename(prefix, extension);
+  const destinationPath = getUploadPath(filename);
   let processedPath = sourcePath;
-  let previousFileMoved = false;
   let newFileMoved = false;
 
   try {
     if (target.documentType === 'hero-photo') {
-      processedPath = getUploadPath(`${file.filename}.webp`);
-      await sharp(sourcePath).rotate().webp({ quality: 86 }).toFile(processedPath);
-    }
-
-    try {
-      await fs.rename(destinationPath, backupPath);
-      previousFileMoved = true;
-    } catch (error) {
-      if (error.code !== 'ENOENT') throw error;
-    }
-
-    try {
-      await fs.rename(processedPath, destinationPath);
+      await sharp(sourcePath).rotate().webp({ quality: 86 }).toFile(destinationPath);
       newFileMoved = true;
-    } catch (error) {
-      if (previousFileMoved) await fs.rename(backupPath, destinationPath);
-      throw error;
+    } else {
+      await fs.rename(sourcePath, destinationPath);
+      newFileMoved = true;
     }
 
-    const uploadRecord = await upsertUploadBySlot(
+    const uploadRecord = await createUploadVersion(
       file.target,
-      target.filename,
+      filename,
       file.originalname,
       target.documentType === 'hero-photo' ? 'image/webp' : file.detectedMime,
       target.documentType === 'hero-photo' ? (await fs.stat(destinationPath)).size : file.size,
-      `/uploads/${target.filename}`,
+      `/uploads/${filename}`,
       target.language,
       target.documentType
     );
 
-    if (previousFileMoved) await fs.unlink(backupPath);
     return uploadRecord;
   } catch (error) {
-    if (processedPath !== sourcePath) await fs.unlink(processedPath).catch(() => {});
     if (newFileMoved) await fs.unlink(destinationPath).catch(() => {});
-    if (previousFileMoved) await fs.rename(backupPath, destinationPath).catch(() => {});
     throw error;
   } finally {
-    if (processedPath !== sourcePath) await fs.unlink(sourcePath).catch(() => {});
+    if (processedPath === sourcePath) await fs.unlink(sourcePath).catch(() => {});
   }
 };
 
@@ -163,7 +155,11 @@ const replaceUploadFile = async (sourcePath, target, file) => {
 router.get('/', async (req, res) => {
   try {
     const language = req.query.language;
-    const uploads = await getUploads(language);
+    const includeHistory = req.query.history === '1';
+    if (includeHistory && !req.session?.authenticated) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    const uploads = await getUploads(language, includeHistory);
     res.json(uploads);
   } catch (error) {
     console.error('Error fetching uploads:', error);
@@ -192,7 +188,7 @@ router.post('/', requireAuth, uploadSingle, async (req, res) => {
         : 'Hero photos must be valid JPEG, PNG, or WebP images');
     }
 
-    const uploadRecord = await replaceUploadFile(tempPath, target, {
+    const uploadRecord = await createUploadFile(tempPath, target, {
       ...req.file,
       detectedMime,
       target: req.body.target,
@@ -200,7 +196,7 @@ router.post('/', requireAuth, uploadSingle, async (req, res) => {
     tempPath = null;
 
     await logAudit('UPLOAD', 'uploads', {
-      filename: target.filename,
+      filename: uploadRecord.filename,
       originalName: req.file.originalname,
       target: req.body.target,
     }).catch((error) => console.warn('Failed to log upload:', error));
@@ -210,6 +206,22 @@ router.post('/', requireAuth, uploadSingle, async (req, res) => {
     console.error('Error uploading file:', error);
     if (tempPath) await fs.unlink(tempPath).catch(() => {});
     res.status(error.status || 500).json({ error: error.message || 'Failed to upload file' });
+  }
+});
+
+router.put('/:filename/activate', requireAuth, async (req, res) => {
+  try {
+    const filename = req.params.filename;
+    if (filename !== path.basename(filename)) return res.status(400).json({ error: 'Invalid upload filename' });
+
+    const upload = await activateUpload(filename);
+    if (!upload) return res.status(404).json({ error: 'Upload not found' });
+
+    await logAudit('ACTIVATE_UPLOAD', 'uploads', { filename }).catch((error) => console.warn('Failed to log activation:', error));
+    res.json(upload);
+  } catch (error) {
+    console.error('Error activating upload:', error);
+    res.status(500).json({ error: 'Failed to activate upload' });
   }
 });
 
@@ -247,5 +259,5 @@ router.delete('/:filename', requireAuth, async (req, res) => {
   }
 });
 
-export { getFileMimeType, getUploadPath };
+export { getFileMimeType, getTimestampedFilename, getUploadPath };
 export default router;

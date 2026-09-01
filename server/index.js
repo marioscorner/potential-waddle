@@ -7,7 +7,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import { initDb } from './db/init.js';
-import { pool } from './db/queries.js';
+import { getActiveUploadBySlot, pool } from './db/queries.js';
 import authRoutes from './routes/auth.js';
 import contentRoutes from './routes/content.js';
 import uploadRoutes from './routes/uploads.js';
@@ -98,13 +98,27 @@ app.use(
   })
 );
 
+// Keep unauthenticated visitors out of the dashboard before Astro loads its client bundle.
+app.use('/admin/dashboard', (req, res, next) => {
+  if (req.session?.authenticated) return next();
+  return res.redirect(302, '/admin/');
+});
+
 // Serve uploads directory
 app.use('/uploads', express.static(UPLOAD_DIR));
 
-const serveCv = (language) => (req, res, next) => {
-  const filename = `cv-${language}.pdf`;
-  const uploadedPath = path.join(UPLOAD_DIR, filename);
-  const fallbackPath = path.join(clientPath, filename);
+const serveCv = (language) => async (req, res, next) => {
+  const fallbackFilename = `cv-${language}.pdf`;
+  let uploadedPath = path.join(UPLOAD_DIR, fallbackFilename);
+
+  try {
+    const activeUpload = await getActiveUploadBySlot(`cv-${language}`);
+    if (activeUpload?.filename) uploadedPath = path.join(UPLOAD_DIR, activeUpload.filename);
+  } catch (error) {
+    console.warn('Unable to resolve active CV upload:', error.message);
+  }
+
+  const fallbackPath = path.join(clientPath, fallbackFilename);
   const filePath = existsSync(uploadedPath) ? uploadedPath : fallbackPath;
 
   res.sendFile(filePath, {

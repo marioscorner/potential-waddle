@@ -40,6 +40,7 @@ const languages = Array.isArray(content.languages) ? content.languages : [];
 const experiences = Array.isArray(content.experience) ? sortExperiences(content.experience) : [];
 const technologies = Array.isArray(content.technologies?.items) ? content.technologies.items : [];
 const socialLinks = Array.isArray(content.social) ? content.social : [];
+const sectionTitles = content.sectionTitles?.[language] || {};
 const socialIcons = { FaLinkedin, FaGithub, FaInstagram, Globe2 };
 const photoUpload = uploads.find((upload) => upload.slot === 'hero-photo');
 const versionedUrl = (upload: any, fallback: string) => {
@@ -123,7 +124,7 @@ const schema = JSON.stringify({
             <div class="animate-fade-in opacity-0" style="animation-delay: 0ms">
               <header class="bento-card flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
                 <div class="flex-1 space-y-2">
-                  <div class="flex items-center gap-2"><Hand className="h-4 w-4 text-primary" /><span class="section-label">{t.hero.welcome}</span></div>
+                  <div class="flex items-center gap-2"><Hand className="h-4 w-4 text-primary" /><span class="section-label">{sectionTitles.hero || t.hero.welcome}</span></div>
                   <div class="space-y-1">
                     <h1 class="text-lg leading-relaxed text-foreground">{hero.greeting} <span class="font-semibold">{hero.name}</span>, {hero.intro}</h1>
                     <p class="text-sm text-muted-foreground">{hero.cta}</p>
@@ -180,21 +181,21 @@ const schema = JSON.stringify({
             </div>
 
             <div class="animate-fade-in opacity-0" style="animation-delay: 600ms">
-              <section class="bento-card h-full" aria-labelledby="languages-title"><div class="mb-1 flex items-center gap-2"><Languages className="h-4 w-4 text-primary" /><h2 id="languages-title" class="section-label">{t.languages.title}</h2></div><div class="space-y-1">{languages.map((item, index) => <div class="space-y-0.5"><p class="text-sm font-medium">{item.name?.[language]}</p><p class="text-sm text-muted-foreground">{item.level?.[language]}</p>{index < languages.length - 1 && <div class="border-t border-border pt-1" />}</div>)}</div></section>
+                <section class="bento-card h-full" aria-labelledby="languages-title"><div class="mb-1 flex items-center gap-2"><Languages className="h-4 w-4 text-primary" /><h2 id="languages-title" class="section-label">{sectionTitles.languages || t.languages.title}</h2></div><div class="space-y-1">{languages.map((item, index) => <div class="space-y-0.5"><p class="text-sm font-medium">{item.name?.[language]}</p><p class="text-sm text-muted-foreground">{item.level?.[language]}</p>{index < languages.length - 1 && <div class="border-t border-border pt-1" />}</div>)}</div></section>
             </div>
           </div>
 
           <div class="flex h-full flex-col gap-2">
             <div class="animate-fade-in opacity-0" style="animation-delay: 700ms">
-              <section class="bento-card" aria-labelledby="technologies-title"><div class="mb-1 flex items-center gap-2"><Code2 className="h-4 w-4 text-primary" /><h2 id="technologies-title" class="section-label">{t.technologies.title}</h2></div><div class="grid grid-cols-2 gap-1.5">{technologies.map((technology) => <span class="inline-flex items-center justify-center rounded-md border border-primary/20 bg-primary/10 px-2.5 py-1 text-sm font-medium text-primary">{technology}</span>)}</div></section>
+              <section class="bento-card" aria-labelledby="technologies-title"><div class="mb-1 flex items-center gap-2"><Code2 className="h-4 w-4 text-primary" /><h2 id="technologies-title" class="section-label">{sectionTitles.technologies || t.technologies.title}</h2></div><div class="grid grid-cols-2 gap-1.5">{technologies.map((technology) => <span class="inline-flex items-center justify-center rounded-md border border-primary/20 bg-primary/10 px-2.5 py-1 text-sm font-medium text-primary">{technology}</span>)}</div></section>
             </div>
 
             <div class="animate-fade-in opacity-0" style="animation-delay: 800ms">
-              <section class="bento-card" aria-labelledby="experience-title"><div class="mb-1 flex items-center gap-2"><Briefcase className="h-4 w-4 text-primary" /><h2 id="experience-title" class="section-label">{t.techStack.experience}</h2></div><div class="space-y-1">{experiences.map((job, index) => <article class="space-y-1"><h3 class="text-base font-semibold">{job.position?.[language]}</h3><p class="text-sm font-medium text-muted-foreground">{job.company}</p><time class="text-xs text-muted-foreground" datetime={job.startDate}>{formatExperiencePeriod(job, language)}</time>{job.responsibilities?.[language]?.length > 0 && <ul class="mt-2 list-disc space-y-1 pl-4">{job.responsibilities[language].map((responsibility) => <li class="text-xs leading-relaxed text-muted-foreground">{responsibility}</li>)}</ul>}{index < experiences.length - 1 && <div class="mt-1 border-t border-border pt-1" />}</article>)}</div></section>
+              <section class="bento-card" aria-labelledby="experience-title"><div class="mb-1 flex items-center gap-2"><Briefcase className="h-4 w-4 text-primary" /><h2 id="experience-title" class="section-label">{sectionTitles.experience || t.techStack.experience}</h2></div><div class="space-y-1">{experiences.map((job, index) => <article class="space-y-1"><h3 class="text-base font-semibold">{job.position?.[language]}</h3><p class="text-sm font-medium text-muted-foreground">{job.company}</p><time class="text-xs text-muted-foreground" datetime={job.startDate}>{formatExperiencePeriod(job, language)}</time>{job.responsibilities?.[language]?.length > 0 && <ul class="mt-2 list-disc space-y-1 pl-4">{job.responsibilities[language].map((responsibility) => <li class="text-xs leading-relaxed text-muted-foreground">{responsibility}</li>)}</ul>}{index < experiences.length - 1 && <div class="mt-1 border-t border-border pt-1" />}</article>)}</div></section>
             </div>
 
             <div class="animate-fade-in opacity-0" style="animation-delay: 900ms">
-              <section class="bento-card h-full" aria-labelledby="certifications-title"><div class="mb-1 flex items-center gap-2"><Award className="h-4 w-4 text-primary" /><h2 id="certifications-title" class="section-label">{t.certifications.title}</h2></div><div class="space-y-1">{certifications.map((certification, index) => <article class="space-y-1"><p class="text-sm font-medium">{certification.name?.[language]}</p>{certification.issuer && <p class="text-sm text-muted-foreground">{certification.issuer[language]}</p>}{index < certifications.length - 1 && <div class="border-t border-border pt-1" />}</article>)}</div></section>
+              <section class="bento-card h-full" aria-labelledby="certifications-title"><div class="mb-1 flex items-center gap-2"><Award className="h-4 w-4 text-primary" /><h2 id="certifications-title" class="section-label">{sectionTitles.certifications || t.certifications.title}</h2></div><div class="space-y-1">{certifications.map((certification, index) => <article class="space-y-1"><p class="text-sm font-medium">{certification.name?.[language]}</p>{certification.issuer && <p class="text-sm text-muted-foreground">{certification.issuer[language]}</p>}{index < certifications.length - 1 && <div class="border-t border-border pt-1" />}</article>)}</div></section>
             </div>
           </div>
         </div>

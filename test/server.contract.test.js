@@ -53,6 +53,10 @@ test('public page aliases redirect directly to their canonical URLs', async (t) 
   assert.equal(admin.status, 301);
   assert.equal(admin.headers.location, 'https://marioscorner.com/admin/');
 
+  const dashboard = await send('/admin/dashboard/');
+  assert.equal(dashboard.status, 302);
+  assert.equal(dashboard.headers.location, '/admin/');
+
   const uploadedCv = await send('/uploads/cv-es.pdf');
   assert.equal(uploadedCv.status, 301);
   assert.equal(uploadedCv.headers.location, 'https://marioscorner.com/cv-es.pdf');

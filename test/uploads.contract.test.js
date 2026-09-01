@@ -6,11 +6,15 @@ import test from 'node:test';
 const uploadDir = '/tmp/opencode/marioscorner-upload-tests';
 process.env.UPLOAD_DIR = uploadDir;
 
-const { getFileMimeType, getUploadPath } = await import('../server/routes/uploads.js');
+const { getFileMimeType, getTimestampedFilename, getUploadPath } = await import('../server/routes/uploads.js');
 
 test('upload paths are confined to the configured upload directory', () => {
   assert.equal(getUploadPath('cv-es.pdf'), path.join(uploadDir, 'cv-es.pdf'));
   assert.throws(() => getUploadPath('../outside.pdf'), { message: 'Invalid upload path' });
+});
+
+test('versioned uploads receive a date-stamped filename', () => {
+  assert.match(getTimestampedFilename('hero-photo', 'webp'), /^hero-photo-\d{8}T\d{6}Z-[a-z0-9]{6}\.webp$/);
 });
 
 test('upload validation recognizes supported file signatures', async (t) => {

@@ -114,6 +114,23 @@ const defaultContent = {
     ],
   },
 
+  sectionTitles: {
+    es: {
+      hero: "Presentación",
+      technologies: "Tecnologías",
+      experience: "Experiencia",
+      certifications: "Certificaciones",
+      languages: "Idiomas",
+    },
+    en: {
+      hero: "Welcome",
+      technologies: "Technologies",
+      experience: "Experience",
+      certifications: "Certifications",
+      languages: "Languages",
+    },
+  },
+
   experience: [
     {
       company: "Eco Combustión",

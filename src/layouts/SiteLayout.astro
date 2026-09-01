@@ -1,5 +1,6 @@
 ---
 import '../index.css';
+import CookieNotice from '@/components/CookieNotice.astro';
 
 type Props = {
   language: 'es' | 'en';
@@ -53,5 +54,6 @@ const image = suppliedImage || `${siteUrl}/MY_PHOTO.png`;
   </head>
   <body>
     <slot />
+    {!noindex && <CookieNotice language={language} />}
   </body>
 </html>

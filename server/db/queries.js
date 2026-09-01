@@ -31,13 +31,27 @@ const getAllContent = async () => {
 };
 
 // Upload queries
-const getUploads = async (language) => {
-  const query = language
-    ? 'SELECT * FROM uploads WHERE language = $1 ORDER BY updated_at DESC'
-    : 'SELECT * FROM uploads ORDER BY updated_at DESC';
-  const params = language ? [language] : [];
+const getUploads = async (language, includeInactive = false) => {
+  const clauses = [];
+  const params = [];
+
+  if (language) {
+    params.push(language);
+    clauses.push(`language = $${params.length}`);
+  }
+  if (!includeInactive) clauses.push('is_active = TRUE');
+
+  const query = `SELECT * FROM uploads${clauses.length ? ` WHERE ${clauses.join(' AND ')}` : ''} ORDER BY updated_at DESC`;
   const result = await pool.query(query, params);
   return result.rows;
+};
+
+const getActiveUploadBySlot = async (slot) => {
+  const result = await pool.query(
+    'SELECT * FROM uploads WHERE slot = $1 AND is_active = TRUE LIMIT 1',
+    [slot]
+  );
+  return result.rows[0] || null;
 };
 
 const upsertUploadBySlot = async (slot, filename, originalName, mimeType, size, url, language, documentType) => {
@@ -68,6 +82,50 @@ const addUpload = async (filename, originalName, mimeType, size, url, language =
   return result.rows[0];
 };
 
+const createUploadVersion = async (slot, filename, originalName, mimeType, size, url, language, documentType) => {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    await client.query('UPDATE uploads SET is_active = FALSE WHERE slot = $1 AND is_active = TRUE', [slot]);
+    const result = await client.query(
+      `INSERT INTO uploads (slot, filename, original_name, mime_type, size, url, language, document_type, is_active)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, TRUE)
+       RETURNING *`,
+      [slot, filename, originalName, mimeType, size, url, language, documentType]
+    );
+    await client.query('COMMIT');
+    return result.rows[0];
+  } catch (error) {
+    await client.query('ROLLBACK').catch(() => {});
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
+const activateUpload = async (filename) => {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const { rows } = await client.query('SELECT * FROM uploads WHERE filename = $1 FOR UPDATE', [filename]);
+    const upload = rows[0];
+    if (!upload) return null;
+
+    await client.query('UPDATE uploads SET is_active = FALSE WHERE slot = $1 AND is_active = TRUE', [upload.slot]);
+    const result = await client.query(
+      'UPDATE uploads SET is_active = TRUE, updated_at = NOW() WHERE filename = $1 RETURNING *',
+      [filename]
+    );
+    await client.query('COMMIT');
+    return result.rows[0];
+  } catch (error) {
+    await client.query('ROLLBACK').catch(() => {});
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
 const deleteUpload = async (filename) => {
   const result = await pool.query(
     'DELETE FROM uploads WHERE filename = $1 RETURNING *',
@@ -83,14 +141,35 @@ const logAudit = async (action, section, changes) => {
   );
 };
 
+const getAuditLog = async (limit = 50) => {
+  const result = await pool.query(
+    'SELECT id, action, section, changes, created_at FROM audit_log ORDER BY created_at DESC LIMIT $1',
+    [limit]
+  );
+  return result.rows;
+};
+
+const getAuditEntry = async (id) => {
+  const result = await pool.query(
+    'SELECT id, action, section, changes, created_at FROM audit_log WHERE id = $1 LIMIT 1',
+    [id]
+  );
+  return result.rows[0] || null;
+};
+
 export {
   pool,
   getContent,
   setContent,
   getAllContent,
   getUploads,
+  getActiveUploadBySlot,
   upsertUploadBySlot,
   addUpload,
+  createUploadVersion,
+  activateUpload,
   deleteUpload,
   logAudit,
+  getAuditLog,
+  getAuditEntry,
 };

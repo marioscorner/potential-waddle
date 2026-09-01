@@ -4,7 +4,7 @@ import defaultContent from '../../../server/routes/defaultContent.js';
 const isPlainObject = (value: unknown): value is Record<string, unknown> =>
   Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 
-// Content sections are intentionally schemaless JSONB until the validation migration lands.
+// Defaults keep public rendering compatible when an editable section is not stored yet.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const mergeDefaults = (defaults: unknown, content: unknown): any => {
   if (!isPlainObject(defaults) || !isPlainObject(content)) return content ?? defaults;

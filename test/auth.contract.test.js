@@ -14,6 +14,7 @@ const createServer = async () => {
     req.session = {
       authenticated: false,
       user: null,
+      regenerate: (callback) => callback(null),
       destroy: (callback) => callback(null),
     };
     next();

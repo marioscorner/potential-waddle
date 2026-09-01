@@ -62,6 +62,8 @@ const assertPublicMetadata = (html, language, title, description) => {
   assert.equal(getMeta(html, 'name', 'twitter:card'), 'summary_large_image');
   assert.equal(getMeta(html, 'name', 'twitter:title'), title);
   assert.equal(getMeta(html, 'name', 'twitter:description'), description);
+  assert.match(html, /data-cookie-notice/);
+  assert.match(html, /data-cookie-dismiss/);
 
   const schemaScript = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/i)?.[1];
   assert.ok(schemaScript, 'public pages must include JSON-LD');
@@ -83,6 +85,7 @@ const assertPrivateMetadata = (html, headers) => {
   assert.equal(getLinks(html, 'alternate').length, 0);
   assert.equal(getMeta(html, 'property', 'og:title'), null);
   assert.equal(html.includes('application/ld+json'), false);
+  assert.equal(html.includes('data-cookie-notice'), false);
 };
 
 test('server-rendered pages preserve SEO delivery contracts', async (t) => {
@@ -112,12 +115,14 @@ test('server-rendered pages preserve SEO delivery contracts', async (t) => {
     );
   });
 
-  await t.test('admin and not-found pages are not indexable', async () => {
-    for (const path of ['/admin/', '/admin/dashboard/']) {
-      const response = await request(server, path);
-      assert.equal(response.status, 200);
-      assertPrivateMetadata(response.body, response.headers);
-    }
+  await t.test('admin entry point is not indexable and anonymous dashboards redirect to it', async () => {
+    const admin = await request(server, '/admin/');
+    assert.equal(admin.status, 200);
+    assertPrivateMetadata(admin.body, admin.headers);
+
+    const dashboard = await request(server, '/admin/dashboard/');
+    assert.equal(dashboard.status, 302);
+    assert.equal(dashboard.headers.get('location'), '/admin/');
 
     const notFound = await request(server, '/does-not-exist');
     assert.equal(notFound.status, 404);
