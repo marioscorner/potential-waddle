@@ -1,22 +1,16 @@
 ---
 import {
+  ArrowDownRight,
+  ArrowUpRight,
   Award,
-  Briefcase,
-  Code,
   Code2,
-  ExternalLink,
-  FileText,
-  FolderOpen,
+  Download,
   Globe2,
-  Hand,
   Languages,
-  Mail,
   MapPin,
-  MessageSquare,
   Moon,
+  Send,
   Sun,
-  User,
-  UserCheck,
 } from 'lucide-react';
 import { FaGithub, FaInstagram, FaLinkedin } from 'react-icons/fa6';
 import SiteLayout from '@/layouts/SiteLayout.astro';
@@ -30,6 +24,7 @@ type SocialLink = { name: string; url: string; icon: string };
 type LanguageEntry = { name?: LocalizedText; level?: LocalizedText };
 type Certification = { name?: LocalizedText; issuer?: LocalizedText };
 type UploadAsset = { url?: string; updated_at?: string; created_at?: string; slot?: string };
+
 const { language } = Astro.props;
 const t = translations[language];
 const { content, uploads } = await getPortfolioData();
@@ -104,110 +99,158 @@ const schema = JSON.stringify({
     },
   ],
 }).replaceAll('<', '\\u003c');
+const copy = language === 'es'
+  ? { index: 'Índice', notes: 'Notas de perfil', current: 'Ahora', contact: 'Contacto', project: 'Proyecto' }
+  : { index: 'Index', notes: 'Profile notes', current: 'Now', contact: 'Contact', project: 'Project' };
 ---
 
 <SiteLayout language={language} title={meta.title} description={meta.description} schema={schema} image={absoluteHeroPhotoUrl}>
-  <main id="main-content" class="bg-dot-pattern relative flex min-h-screen flex-1 flex-col">
-    <div class="fixed right-4 top-4 z-50 flex gap-2">
-      <a
-        href={language === 'es' ? '/en/' : '/es/'}
-        class="inline-flex h-10 w-10 items-center justify-center rounded-md text-lg hover:bg-muted"
-        aria-label={language === 'es' ? 'Switch to English' : 'Cambiar a Español'}
-      >
-        {language === 'es' ? '🇬🇧' : '🇪🇸'}
-      </a>
-      <button id="theme-toggle" class="inline-flex h-10 w-10 items-center justify-center rounded-md hover:bg-muted" aria-label="Toggle theme">
-        <Sun className="theme-sun h-5 w-5" />
-        <Moon className="theme-moon hidden h-5 w-5" />
-      </button>
-    </div>
+  <main id="main-content" class="portfolio-shell">
+    <a class="skip-link" href="#profile-content">{language === 'es' ? 'Saltar al contenido' : 'Skip to content'}</a>
 
-    <div class="flex w-full flex-1 items-center justify-center px-4 py-2 sm:px-6 lg:px-8">
-      <div class="w-full max-w-[90rem]">
-        <div class="grid grid-cols-1 items-stretch gap-2 lg:grid-cols-3">
-          <div class="flex h-full flex-col gap-2">
-            <div class="animate-fade-in opacity-0" style="animation-delay: 0ms">
-              <header class="bento-card flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
-                <div class="flex-1 space-y-2">
-                  <div class="flex items-center gap-2"><Hand className="h-4 w-4 text-primary" /><span class="section-label">{sectionTitles.hero || t.hero.welcome}</span></div>
-                  <div class="space-y-1">
-                    <h1 class="text-lg leading-relaxed text-foreground">{hero.greeting} <span class="font-semibold">{hero.name}</span>, {hero.intro}</h1>
-                    <p class="text-sm text-muted-foreground">{hero.cta}</p>
+    <div class="portfolio-frame">
+      <header class="portfolio-topbar">
+        <a class="wordmark" href={`/${language}/`} aria-label="marioscorner home">marioscorner<span>.</span></a>
+        <p class="topbar-location"><MapPin aria-hidden="true" /> {contact.location}</p>
+        <div class="topbar-controls">
+          <a
+            href={language === 'es' ? '/en/' : '/es/'}
+            class="utility-control language-control"
+            aria-label={language === 'es' ? 'Switch to English' : 'Cambiar a Español'}
+          >
+            <Globe2 aria-hidden="true" />
+            <span>{language === 'es' ? 'EN' : 'ES'}</span>
+          </a>
+          <button id="theme-toggle" class="utility-control" aria-label={language === 'es' ? 'Cambiar tema' : 'Toggle theme'} type="button">
+            <Sun className="theme-sun" aria-hidden="true" />
+            <Moon className="theme-moon hidden" aria-hidden="true" />
+          </button>
+        </div>
+      </header>
+
+      <div class="portfolio-grid" id="profile-content">
+        <aside class="profile-rail" aria-label={copy.index}>
+          <p class="eyebrow">{copy.index} / 01-05</p>
+          <nav class="profile-nav">
+            <a href="#about">01 <span>{about.title || t.about.title}</span></a>
+            <a href="#experience">02 <span>{sectionTitles.experience || t.techStack.experience}</span></a>
+            <a href="#project">03 <span>{copy.project}</span></a>
+            <a href="#notes">04 <span>{copy.notes}</span></a>
+            <a href="#contact">05 <span>{copy.contact}</span></a>
+          </nav>
+          <p class="rail-caption">{language === 'es' ? 'Madrid · disponible para construir lo que importa.' : 'Madrid · available to build what matters.'}</p>
+        </aside>
+
+        <div class="portfolio-content">
+          <section class="hero-section reveal" aria-labelledby="profile-title">
+            <div class="hero-copy">
+              <p class="eyebrow"><span class="live-dot" style={`background-color: ${content.status?.indicatorColor || '#22c55e'}`}></span>{sectionTitles.hero || status.status || copy.current} / {status.available}</p>
+              <h1 id="profile-title">{hero.greeting}<br /><strong>{personName}</strong><br /><span>{hero.intro}</span></h1>
+              <p class="hero-intro">{hero.cta}</p>
+              <p class="status-detail">{status.statusDetail}</p>
+              <div class="hero-actions">
+                <a href={`mailto:${contact.email}`} class="action-link action-link-primary"><Send aria-hidden="true" />{contact.sendEmail}<ArrowUpRight aria-hidden="true" /></a>
+                <a href={cvUrl} download class="action-link"><Download aria-hidden="true" />{hero.downloadCV}</a>
+              </div>
+            </div>
+            <figure class="hero-portrait">
+              <div class="portrait-frame">
+                <img src={heroPhotoUrl} alt={language === 'es' ? `Foto de ${personName}` : `Photo of ${personName}`} width="512" height="512" fetchpriority="high" decoding="async" />
+              </div>
+              <figcaption><span>01</span> {language === 'es' ? 'Perfil de desarrollador' : 'Developer profile'}</figcaption>
+            </figure>
+          </section>
+
+          <section class="about-section reveal" id="about" aria-labelledby="about-title">
+            <div class="section-marker"><span>01</span><h2 id="about-title">{about.title || t.about.title}</h2></div>
+            <div class="about-copy">
+              <p class="about-lead">{about.paragraph1}</p>
+              <p>{about.paragraphFullStack}</p>
+              <p>{about.paragraph2}</p>
+            </div>
+          </section>
+
+          <section class="experience-section reveal" id="experience" aria-labelledby="experience-title">
+            <div class="section-marker"><span>02</span><h2 id="experience-title">{sectionTitles.experience || t.techStack.experience}</h2></div>
+            <div class="experience-list">
+              {experiences.map((job) => (
+                <article class="experience-entry">
+                  <time datetime={job.startDate}>{formatExperiencePeriod(job, language)}</time>
+                  <div>
+                    <p class="experience-company">{job.company}</p>
+                    <h3>{job.position?.[language]}</h3>
+                    {job.responsibilities?.[language]?.length > 0 && (
+                      <ul>
+                        {job.responsibilities[language].map((responsibility) => <li>{responsibility}</li>)}
+                      </ul>
+                    )}
                   </div>
-                  <div class="flex flex-wrap items-center gap-2 pt-1">
-                    {socialLinks.map((link) => {
-                      const SocialIcon = socialIcons[link.icon as keyof typeof socialIcons] || Globe2;
-                      return <a href={safeExternalUrl(link.url)} target="_blank" rel="noopener noreferrer" class="btn-primary" aria-label={link.name}><SocialIcon className="h-4 w-4 shrink-0" /><span>{link.name}</span></a>;
-                    })}
-                    <a href={cvUrl} download class="btn-primary"><FileText className="h-4 w-4" /><span>{hero.downloadCV}</span></a>
-                  </div>
-                </div>
-                <div class="h-28 w-28 shrink-0 overflow-hidden rounded-xl bg-gradient-to-br from-gray-700 to-gray-800 sm:h-32 sm:w-32">
-                  <img src={heroPhotoUrl} alt={language === 'es' ? `Foto de ${personName}` : `Photo of ${personName}`} class="h-full w-full object-cover" width="512" height="512" fetchpriority="high" decoding="async" />
-                </div>
-              </header>
+                </article>
+              ))}
             </div>
+          </section>
 
-            <div class="animate-fade-in opacity-0" style="animation-delay: 100ms">
-              <section class="bento-card flex flex-col" aria-labelledby="about-title">
-                <div class="mb-1 flex items-center gap-2"><User className="h-4 w-4 text-primary" /><h2 id="about-title" class="section-label">{about.title || t.about.title}</h2></div>
-                <div class="space-y-1 text-sm leading-relaxed text-muted-foreground"><p>{about.paragraph1}</p><p>{about.paragraphFullStack}</p><p>{about.paragraph2}</p></div>
+          <section class="featured-section reveal" id="project" aria-labelledby="featured-project-title">
+            <div class="featured-heading">
+              <p class="eyebrow">03 / {featured.title}</p>
+              <span class="project-stamp">{featured.comingSoon || t.featured.comingSoon}</span>
+            </div>
+            <div class="featured-body">
+              <div>
+                <h2 id="featured-project-title">{featured.projectTitle}</h2>
+                <p>{featured.description}</p>
+                <p>{featured.description2}</p>
+              </div>
+              <div class="featured-action">
+                <p>{featured.cta}</p>
+                <a href={safeExternalUrl(content.featured?.url)} target="_blank" rel="noopener noreferrer" class="action-link">{featured.visitWeb}<ArrowUpRight aria-hidden="true" /></a>
+              </div>
+            </div>
+          </section>
+
+          <section class="notes-section reveal" id="notes" aria-labelledby="notes-title">
+            <div class="section-marker"><span>04</span><h2 id="notes-title">{copy.notes}</h2></div>
+            <div class="notes-grid">
+              <section class="note-block" aria-labelledby="technologies-title">
+                <div class="note-title"><Code2 aria-hidden="true" /><h3 id="technologies-title">{sectionTitles.technologies || t.technologies.title}</h3></div>
+                <div class="technology-list">{technologies.map((technology, index) => <span><b>{String(index + 1).padStart(2, '0')}</b>{technology}</span>)}</div>
+              </section>
+              <section class="note-block" aria-labelledby="languages-title">
+                <div class="note-title"><Languages aria-hidden="true" /><h3 id="languages-title">{sectionTitles.languages || t.languages.title}</h3></div>
+                <dl class="definition-list">{languages.map((item) => <div><dt>{item.name?.[language]}</dt><dd>{item.level?.[language]}</dd></div>)}</dl>
+              </section>
+              <section class="note-block" aria-labelledby="certifications-title">
+                <div class="note-title"><Award aria-hidden="true" /><h3 id="certifications-title">{sectionTitles.certifications || t.certifications.title}</h3></div>
+                <ul class="certification-list">{certifications.map((certification) => <li><strong>{certification.name?.[language]}</strong>{certification.issuer && <span>{certification.issuer[language]}</span>}</li>)}</ul>
               </section>
             </div>
+          </section>
 
-            <div class="animate-fade-in opacity-0" style="animation-delay: 200ms">
-              <section class="bento-card flex h-full flex-col justify-between" aria-labelledby="projects-title">
-                <div><div class="mb-1 flex items-center gap-2"><Code className="h-4 w-4 text-primary" /><h2 id="projects-title" class="section-label">{projects.title}</h2></div><p class="mb-2 text-sm leading-relaxed text-muted-foreground">{projects.description}</p></div>
-                <a href={safeExternalUrl(content.projects?.url)} target="_blank" rel="noopener noreferrer" class="btn-primary"><FaGithub className="h-4 w-4" /><span>{projects.visitGitHub}</span></a>
-              </section>
+          <section class="contact-section reveal" id="contact" aria-labelledby="contact-title">
+            <div class="contact-heading">
+              <p class="eyebrow">05 / {copy.contact}</p>
+              <h2 id="contact-title">{contact.title}</h2>
             </div>
-          </div>
-
-          <div class="flex h-full flex-col gap-2">
-            <div class="animate-fade-in opacity-0" style="animation-delay: 300ms">
-              <section class="bento-card" aria-labelledby="status-title">
-                <div class="mb-1 flex items-center gap-2"><UserCheck className="h-4 w-4 text-primary" /><h2 id="status-title" class="section-label">{status.status}</h2></div>
-                <div class="space-y-1"><div class="flex items-center gap-2"><span class="relative flex h-2.5 w-2.5"><span class="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" style={`background-color: ${content.status?.indicatorColor || '#22c55e'}`}></span><span class="relative inline-flex h-2.5 w-2.5 rounded-full" style={`background-color: ${content.status?.indicatorColor || '#22c55e'}`}></span></span><span class="text-sm font-medium">{status.available}</span></div><p class="text-sm text-muted-foreground">{status.statusDetail}</p></div>
-              </section>
+            <div class="contact-details">
+              <a class="contact-email" href={`mailto:${contact.email}`}>{contact.email}<ArrowUpRight aria-hidden="true" /></a>
+              <div class="social-list">
+                {socialLinks.map((link) => {
+                  const SocialIcon = socialIcons[link.icon as keyof typeof socialIcons] || Globe2;
+                  return <a href={safeExternalUrl(link.url)} target="_blank" rel="noopener noreferrer"><SocialIcon aria-hidden="true" />{link.name}<ArrowUpRight aria-hidden="true" /></a>;
+                })}
+                <a href={safeExternalUrl(content.projects?.url)} target="_blank" rel="noopener noreferrer"><FaGithub aria-hidden="true" />{projects.visitGitHub}<ArrowUpRight aria-hidden="true" /></a>
+              </div>
+              <p class="projects-note"><strong>{projects.title}</strong>{projects.description}</p>
             </div>
-
-            <div class="animate-fade-in opacity-0" style="animation-delay: 400ms">
-              <section class="bento-card flex h-full flex-col justify-between" id="contact" aria-labelledby="contact-title">
-                <div><div class="mb-1 flex items-center gap-2"><MessageSquare className="h-4 w-4 text-primary" /><h2 id="contact-title" class="section-label">{contact.title}</h2></div><address class="not-italic"><div class="flex items-center gap-2 text-sm"><Mail className="h-4 w-4 text-muted-foreground" /><a href={`mailto:${contact.email}`}>{contact.email}</a></div><p class="mt-1 flex items-center gap-2 text-sm text-muted-foreground"><MapPin className="h-4 w-4" />{contact.location}</p></address></div>
-                <a href={`mailto:${contact.email}`} class="btn-accent mt-2"><Mail className="h-4 w-4" /><span>{contact.sendEmail}</span></a>
-              </section>
-            </div>
-
-            <div class="animate-fade-in opacity-0" style="animation-delay: 500ms">
-              <article class="bento-card-featured flex h-full flex-col justify-between" aria-labelledby="featured-project-title">
-                <div><div class="mb-1 flex items-center gap-2"><FolderOpen className="h-4 w-4 text-primary" /><p class="section-label">{featured.title}</p></div><h2 id="featured-project-title" class="mb-1 text-base font-semibold">{featured.projectTitle}</h2><p class="text-sm leading-relaxed text-muted-foreground">{featured.description}</p><p class="mt-1 text-sm leading-relaxed text-muted-foreground">{featured.description2}</p><p class="mt-1 text-sm text-muted-foreground">{featured.cta}</p></div>
-                <a href={safeExternalUrl(content.featured?.url)} target="_blank" rel="noopener noreferrer" class="btn-primary mt-2"><ExternalLink className="h-4 w-4" /><span>{featured.visitWeb}</span></a>
-              </article>
-            </div>
-
-            <div class="animate-fade-in opacity-0" style="animation-delay: 600ms">
-                <section class="bento-card h-full" aria-labelledby="languages-title"><div class="mb-1 flex items-center gap-2"><Languages className="h-4 w-4 text-primary" /><h2 id="languages-title" class="section-label">{sectionTitles.languages || t.languages.title}</h2></div><div class="space-y-1">{languages.map((item, index) => <div class="space-y-0.5"><p class="text-sm font-medium">{item.name?.[language]}</p><p class="text-sm text-muted-foreground">{item.level?.[language]}</p>{index < languages.length - 1 && <div class="border-t border-border pt-1" />}</div>)}</div></section>
-            </div>
-          </div>
-
-          <div class="flex h-full flex-col gap-2">
-            <div class="animate-fade-in opacity-0" style="animation-delay: 700ms">
-              <section class="bento-card" aria-labelledby="technologies-title"><div class="mb-1 flex items-center gap-2"><Code2 className="h-4 w-4 text-primary" /><h2 id="technologies-title" class="section-label">{sectionTitles.technologies || t.technologies.title}</h2></div><div class="grid grid-cols-2 gap-1.5">{technologies.map((technology) => <span class="inline-flex items-center justify-center rounded-md border border-primary/20 bg-primary/10 px-2.5 py-1 text-sm font-medium text-primary">{technology}</span>)}</div></section>
-            </div>
-
-            <div class="animate-fade-in opacity-0" style="animation-delay: 800ms">
-              <section class="bento-card" aria-labelledby="experience-title"><div class="mb-1 flex items-center gap-2"><Briefcase className="h-4 w-4 text-primary" /><h2 id="experience-title" class="section-label">{sectionTitles.experience || t.techStack.experience}</h2></div><div class="space-y-1">{experiences.map((job, index) => <article class="space-y-1"><h3 class="text-base font-semibold">{job.position?.[language]}</h3><p class="text-sm font-medium text-muted-foreground">{job.company}</p><time class="text-xs text-muted-foreground" datetime={job.startDate}>{formatExperiencePeriod(job, language)}</time>{job.responsibilities?.[language]?.length > 0 && <ul class="mt-2 list-disc space-y-1 pl-4">{job.responsibilities[language].map((responsibility) => <li class="text-xs leading-relaxed text-muted-foreground">{responsibility}</li>)}</ul>}{index < experiences.length - 1 && <div class="mt-1 border-t border-border pt-1" />}</article>)}</div></section>
-            </div>
-
-            <div class="animate-fade-in opacity-0" style="animation-delay: 900ms">
-              <section class="bento-card h-full" aria-labelledby="certifications-title"><div class="mb-1 flex items-center gap-2"><Award className="h-4 w-4 text-primary" /><h2 id="certifications-title" class="section-label">{sectionTitles.certifications || t.certifications.title}</h2></div><div class="space-y-1">{certifications.map((certification, index) => <article class="space-y-1"><p class="text-sm font-medium">{certification.name?.[language]}</p>{certification.issuer && <p class="text-sm text-muted-foreground">{certification.issuer[language]}</p>}{index < certifications.length - 1 && <div class="border-t border-border pt-1" />}</article>)}</div></section>
-            </div>
-          </div>
+          </section>
         </div>
       </div>
-    </div>
 
-    <footer class="mt-auto border-t border-border py-2"><p class="text-center text-xs text-muted-foreground">© {new Date().getFullYear()} · {content.footer?.[language]?.madeWith || t.footer.madeWith} <span class="text-primary">♥</span> {content.footer?.[language]?.by || t.footer.by} {content.footer?.[language]?.name || t.footer.name}</p></footer>
+      <footer class="portfolio-footer">
+        <p>© {new Date().getFullYear()} · {content.footer?.[language]?.madeWith || t.footer.madeWith} <span>♥</span> {content.footer?.[language]?.by || t.footer.by} {content.footer?.[language]?.name || t.footer.name}</p>
+        <a href="#main-content">{language === 'es' ? 'Volver arriba' : 'Back to top'} <ArrowDownRight aria-hidden="true" /></a>
+      </footer>
+    </div>
   </main>
 
   <script>
