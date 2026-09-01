@@ -111,7 +111,6 @@ const copy = language === 'es'
     <div class="portfolio-frame">
       <header class="portfolio-topbar">
         <a class="wordmark" href={`/${language}/`} aria-label="marioscorner home">marioscorner<span>.</span></a>
-        <p class="topbar-location"><MapPin aria-hidden="true" /> {contact.location}</p>
         <div class="topbar-controls">
           <a
             href={language === 'es' ? '/en/' : '/es/'}
@@ -138,14 +137,17 @@ const copy = language === 'es'
             <a href="#project" aria-controls="project">03 <span>{copy.project}</span></a>
             <a href="#contact" aria-controls="contact">04 <span>{copy.contact}</span></a>
           </nav>
-          <p class="rail-caption">{language === 'es' ? 'Madrid · disponible para construir lo que importa.' : 'Madrid · available to build what matters.'}</p>
+          <div class="rail-meta">
+            <p class="rail-location"><MapPin aria-hidden="true" />{contact.location}</p>
+            <p class="rail-caption">{language === 'es' ? 'Disponible para construir lo que importa.' : 'Available to build what matters.'}</p>
+          </div>
         </aside>
 
         <div class="portfolio-viewer" id="profile-content" tabindex="0" aria-label={language === 'es' ? 'Secciones del portfolio' : 'Portfolio sections'}>
           <div class="portfolio-track">
           <section class="hero-section viewer-panel" id="intro" data-panel aria-labelledby="profile-title">
             <div class="hero-copy">
-              <h1 id="profile-title">{personName}</h1>
+              <h1 id="profile-title">{personName}<span>{hero.intro}</span></h1>
               <p class="hero-status"><span class="live-dot" style={`background-color: ${content.status?.indicatorColor || '#22c55e'}`}></span>{status.statusDetail}</p>
               <div class="hero-actions">
                 <a href={`mailto:${contact.email}`} class="action-link action-link-primary"><Send aria-hidden="true" />{contact.sendEmail}<ArrowUpRight aria-hidden="true" /></a>
