@@ -1,11 +1,59 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, type ChangeEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { LogOut, Save, AlertCircle, CheckCircle, Upload, Trash2, Palette, Eye, Undo2, Image as ImageIcon, History, Download, FileUp, RotateCcw, ArrowDown, ArrowUp, GripVertical, ShieldCheck } from 'lucide-react';
 import MonthPicker from '@/components/admin/MonthPicker';
 import ImageCropper from '@/components/admin/ImageCropper';
 import { normalizeExperiences, sortExperiences, toStructuredExperiences } from '@/lib/experience';
 
-const tabs = ['hero', 'about', 'status', 'contact', 'featured', 'technologies', 'sectionTitles', 'experience', 'certifications', 'languages', 'projects', 'social', 'meta', 'footer', 'uploads', 'activity'];
+const tabs = ['hero', 'about', 'status', 'contact', 'featured', 'technologies', 'sectionTitles', 'experience', 'certifications', 'languages', 'projects', 'social', 'meta', 'footer', 'uploads', 'activity'] as const;
+
+type Tab = typeof tabs[number];
+type AdminLanguage = 'es' | 'en';
+type MessageType = '' | 'success' | 'error';
+// The CMS permits heterogeneous JSON sections; this dynamic boundary is contained in the editor.
+type EditorItem = Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+type EditorContent = Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+type UploadTargetValue = 'cv-es' | 'cv-en' | 'hero-photo';
+
+type Message = { type: MessageType; text: string };
+type UploadTarget = {
+  value: UploadTargetValue;
+  label: string;
+  accept: string;
+  allowedTypes: string[];
+};
+type UploadRecord = {
+  filename: string;
+  document_type: string;
+  language: string;
+  original_name: string;
+  size: number;
+  is_active: boolean;
+  slot?: string;
+  created_at?: string;
+  uploaded_at?: string;
+};
+type AuditEntry = {
+  id: string | number;
+  action: string;
+  section?: Tab;
+  created_at: string | number;
+  changes?: { after?: unknown; user?: string };
+};
+type Operations = { database: string; lastActivity?: string | number };
+type Experience = EditorItem & {
+  company: string;
+  startDate: string;
+  endDate: string;
+  isCurrent: boolean;
+  position: Record<AdminLanguage, string>;
+  responsibilities: Record<AdminLanguage, string[]>;
+};
+type SimpleLocalizedEditorConfig = {
+  itemLabel: string;
+  fields: string[];
+  createItem: () => EditorItem;
+};
 
 const sectionLabels = {
   hero: 'Hero',
@@ -53,19 +101,19 @@ const fieldLabels = {
   description: 'Meta description',
 };
 
-const getFieldLabel = (key) => fieldLabels[key] || key.replace(/([A-Z])/g, ' $1').replace(/^./, (letter) => letter.toUpperCase());
+const getFieldLabel = (key: string) => fieldLabels[key as keyof typeof fieldLabels] || key.replace(/([A-Z])/g, ' $1').replace(/^./, (letter) => letter.toUpperCase());
 
-const isLongText = (key, value) => value.length > 100 || ['description', 'description2', 'paragraph1', 'paragraph2', 'paragraphFullStack', 'statusDetail', 'cta'].includes(key);
+const isLongText = (key: string, value: string) => value.length > 100 || ['description', 'description2', 'paragraph1', 'paragraph2', 'paragraphFullStack', 'statusDetail', 'cta'].includes(key);
 
-const uploadTargets = [
+const uploadTargets: UploadTarget[] = [
   { value: 'cv-es', label: 'CV (Spanish)', accept: 'application/pdf', allowedTypes: ['application/pdf'] },
   { value: 'cv-en', label: 'CV (English)', accept: 'application/pdf', allowedTypes: ['application/pdf'] },
   { value: 'hero-photo', label: 'Hero photo', accept: 'image/jpeg,image/png,image/webp', allowedTypes: ['image/jpeg', 'image/png', 'image/webp'] },
 ];
 
-const getUploadTarget = (target) => uploadTargets.find((option) => option.value === target);
+const getUploadTarget = (target: string) => uploadTargets.find((option) => option.value === target);
 
-const getResponseError = async (response, fallback) => {
+const getResponseError = async (response: Response, fallback: string): Promise<string> => {
   try {
     const data = await response.json();
     return typeof data?.error === 'string' ? data.error : fallback;
@@ -87,7 +135,7 @@ const adminCopy = {
   },
 };
 
-const isHttpUrl = (value) => {
+const isHttpUrl = (value: string) => {
   try {
     return ['http:', 'https:'].includes(new URL(value).protocol);
   } catch {
@@ -95,9 +143,13 @@ const isHttpUrl = (value) => {
   }
 };
 
-const getSectionLabel = (section, language) => (language === 'es' ? sectionLabelsEs[section] : sectionLabels[section]) || section;
+const getSectionLabel = (section: string | undefined, language: AdminLanguage) => {
+  if (!section) return '';
+  const labels = language === 'es' ? sectionLabelsEs : sectionLabels;
+  return labels[section as keyof typeof labels] || section;
+};
 
-const createExperience = () => {
+const createExperience = (): Experience => {
   const now = new Date();
   const startDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 
@@ -114,22 +166,22 @@ const createExperience = () => {
 const AdminDashboard = () => {
   const [authenticated, setAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [content, setContent] = useState(null);
-  const [savedContent, setSavedContent] = useState(null);
+  const [content, setContent] = useState<EditorContent | null>(null);
+  const [savedContent, setSavedContent] = useState<EditorContent | null>(null);
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState({ type: '', text: '' });
-  const [activeTab, setActiveTab] = useState('hero');
-  const [uploads, setUploads] = useState([]);
+  const [message, setMessage] = useState<Message>({ type: '', text: '' });
+  const [activeTab, setActiveTab] = useState<Tab>('hero');
+  const [uploads, setUploads] = useState<UploadRecord[]>([]);
   const [uploading, setUploading] = useState(false);
-  const [selectedUploadTarget, setSelectedUploadTarget] = useState('cv-es');
-  const [croppingFile, setCroppingFile] = useState(null);
-  const [auditEntries, setAuditEntries] = useState([]);
-  const [adminLanguage, setAdminLanguage] = useState('es');
-  const [operations, setOperations] = useState(null);
-  const [dragIndex, setDragIndex] = useState(null);
+  const [selectedUploadTarget, setSelectedUploadTarget] = useState<UploadTargetValue>('cv-es');
+  const [croppingFile, setCroppingFile] = useState<File | null>(null);
+  const [auditEntries, setAuditEntries] = useState<AuditEntry[]>([]);
+  const [adminLanguage, setAdminLanguage] = useState<AdminLanguage>('es');
+  const [operations, setOperations] = useState<Operations | null>(null);
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
   const copy = adminCopy[adminLanguage];
 
-  const showMessage = (type, text) => {
+  const showMessage = (type: MessageType, text: string) => {
     setMessage({ type, text });
     setTimeout(() => setMessage({ type: '', text: '' }), 3000);
   };
@@ -144,8 +196,8 @@ const AdminDashboard = () => {
         ...data,
         experience: Array.isArray(data.experience) ? normalizeExperiences(data.experience) : [],
       };
-      setContent(normalizedContent);
-      setSavedContent(normalizedContent);
+      setContent(normalizedContent as EditorContent);
+      setSavedContent(normalizedContent as EditorContent);
     } catch (err) {
       showMessage('error', 'Failed to load content');
     }
@@ -156,7 +208,7 @@ const AdminDashboard = () => {
       const response = await fetch('/api/uploads?history=1', { credentials: 'include' });
       if (!response.ok) throw new Error(await getResponseError(response, 'Failed to load uploads'));
       const data = await response.json();
-      setUploads(Array.isArray(data) ? data : []);
+      setUploads(Array.isArray(data) ? data as UploadRecord[] : []);
     } catch (err) {
       console.error('Failed to load uploads:', err);
       setUploads([]);
@@ -169,7 +221,7 @@ const AdminDashboard = () => {
       const response = await fetch('/api/content/audit?limit=30', { credentials: 'include' });
       if (!response.ok) throw new Error(await getResponseError(response, 'Failed to load activity'));
       const data = await response.json();
-      setAuditEntries(Array.isArray(data) ? data : []);
+      setAuditEntries(Array.isArray(data) ? data as AuditEntry[] : []);
     } catch (err) {
       console.error('Failed to load audit log:', err);
       setAuditEntries([]);
@@ -180,7 +232,7 @@ const AdminDashboard = () => {
     try {
       const response = await fetch('/api/auth/operations', { credentials: 'include' });
       if (!response.ok) throw new Error(await getResponseError(response, 'Failed to load operations status'));
-      setOperations(await response.json());
+      setOperations(await response.json() as Operations);
     } catch (err) {
       setOperations({ database: 'unavailable' });
     }
@@ -219,9 +271,8 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     if (!isDirty) return undefined;
-    const warnBeforeUnload = (event) => {
+    const warnBeforeUnload = (event: BeforeUnloadEvent) => {
       event.preventDefault();
-      event.returnValue = '';
     };
     window.addEventListener('beforeunload', warnBeforeUnload);
     return () => window.removeEventListener('beforeunload', warnBeforeUnload);
@@ -284,7 +335,7 @@ const AdminDashboard = () => {
     }
   };
 
-  const updateContent = (key, value) => {
+  const updateContent = (key: string, value: unknown) => {
     if (!content) return;
 
     const updated = { ...content };
@@ -299,7 +350,7 @@ const AdminDashboard = () => {
     setContent(updated);
   };
 
-  const updateNestedContent = (groupKey, key, value) => {
+  const updateNestedContent = (groupKey: string, key: string, value: unknown) => {
     if (!content) return;
 
     setContent({
@@ -314,7 +365,7 @@ const AdminDashboard = () => {
     });
   };
 
-  const setActiveSection = (value) => {
+  const setActiveSection = (value: unknown) => {
     if (!content) return;
 
     setContent({
@@ -323,7 +374,7 @@ const AdminDashboard = () => {
     });
   };
 
-  const updateTechnologies = (items) => {
+  const updateTechnologies = (items: string[]) => {
     if (!content) return;
 
     setContent({
@@ -335,7 +386,7 @@ const AdminDashboard = () => {
     });
   };
 
-  const updateArrayItem = (index, updater) => {
+  const updateArrayItem = (index: number, updater: (item: EditorItem) => EditorItem) => {
     const currentSection = content?.[activeTab];
     if (!Array.isArray(currentSection)) return;
 
@@ -344,7 +395,7 @@ const AdminDashboard = () => {
     )));
   };
 
-  const addArrayItem = (item) => {
+  const addArrayItem = (item: EditorItem) => {
     const currentSection = content?.[activeTab];
     if (!Array.isArray(currentSection)) return;
 
@@ -356,14 +407,14 @@ const AdminDashboard = () => {
     setActiveSection([createExperience(), ...experiences]);
   };
 
-  const removeArrayItem = (index) => {
+  const removeArrayItem = (index: number) => {
     const currentSection = content?.[activeTab];
     if (!Array.isArray(currentSection)) return;
 
     setActiveSection(currentSection.filter((_, itemIndex) => itemIndex !== index));
   };
 
-  const moveArrayItem = (fromIndex, toIndex) => {
+  const moveArrayItem = (fromIndex: number, toIndex: number) => {
     const currentSection = content?.[activeTab];
     if (!Array.isArray(currentSection) || toIndex < 0 || toIndex >= currentSection.length || fromIndex === toIndex) return;
     const items = [...currentSection];
@@ -372,7 +423,7 @@ const AdminDashboard = () => {
     setActiveSection(items);
   };
 
-  const moveTechnology = (fromIndex, toIndex) => {
+  const moveTechnology = (fromIndex: number, toIndex: number) => {
     const items = content?.technologies?.items || [];
     if (toIndex < 0 || toIndex >= items.length || fromIndex === toIndex) return;
     const nextItems = [...items];
@@ -381,7 +432,7 @@ const AdminDashboard = () => {
     updateTechnologies(nextItems);
   };
 
-  const renderReorderControls = (index, count, onMove = moveArrayItem) => (
+  const renderReorderControls = (index: number, count: number, onMove: (fromIndex: number, toIndex: number) => void = moveArrayItem) => (
     <div className="flex items-center gap-1" aria-label="Reorder item">
       <GripVertical className="h-4 w-4 text-gray-500" aria-hidden="true" />
       <button type="button" onClick={() => onMove(index, index - 1)} disabled={index === 0} className="rounded-lg p-2 text-gray-300 hover:bg-white/10 disabled:opacity-30" aria-label="Move item up">
@@ -393,7 +444,7 @@ const AdminDashboard = () => {
     </div>
   );
 
-  const updateLocalizedField = (index, field, language, value) => {
+  const updateLocalizedField = (index: number, field: string, language: AdminLanguage, value: string) => {
     updateArrayItem(index, (item) => ({
       ...item,
       [field]: {
@@ -403,19 +454,19 @@ const AdminDashboard = () => {
     }));
   };
 
-  const updateLocalizedListField = (index, field, language, listIndex, value) => {
+  const updateLocalizedListField = (index: number, field: string, language: AdminLanguage, listIndex: number, value: string) => {
     updateArrayItem(index, (item) => ({
       ...item,
       [field]: {
         ...item[field],
-        [language]: item[field][language].map((entry, entryIndex) => (
+        [language]: (item[field][language] as string[]).map((entry, entryIndex) => (
           entryIndex === listIndex ? value : entry
         )),
       },
     }));
   };
 
-  const addLocalizedListField = (index, field, language) => {
+  const addLocalizedListField = (index: number, field: string, language: AdminLanguage) => {
     updateArrayItem(index, (item) => ({
       ...item,
       [field]: {
@@ -425,17 +476,17 @@ const AdminDashboard = () => {
     }));
   };
 
-  const removeLocalizedListField = (index, field, language, listIndex) => {
+  const removeLocalizedListField = (index: number, field: string, language: AdminLanguage, listIndex: number) => {
     updateArrayItem(index, (item) => ({
       ...item,
       [field]: {
         ...item[field],
-        [language]: item[field][language].filter((_, entryIndex) => entryIndex !== listIndex),
+        [language]: (item[field][language] as string[]).filter((_entry, entryIndex) => entryIndex !== listIndex),
       },
     }));
   };
 
-  const handleFileUpload = async (e) => {
+  const handleFileUpload = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -468,7 +519,7 @@ const AdminDashboard = () => {
     e.target.value = '';
   };
 
-  const uploadFile = async (file, target) => {
+  const uploadFile = async (file: File, target: UploadTarget) => {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('target', target.value);
@@ -494,7 +545,7 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleActivateUpload = async (filename) => {
+  const handleActivateUpload = async (filename: string) => {
     try {
       const response = await fetch(`/api/uploads/${encodeURIComponent(filename)}/activate`, {
         method: 'PUT',
@@ -514,7 +565,7 @@ const AdminDashboard = () => {
     showMessage('success', 'Unsaved changes discarded');
   };
 
-  const handleTabChange = (tab) => {
+  const handleTabChange = (tab: Tab) => {
     if (tab !== activeTab && isDirty && !confirm('You have unsaved changes. Switch sections and keep them as a draft?')) return;
     setActiveTab(tab);
   };
@@ -535,7 +586,7 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleImport = async (event) => {
+  const handleImport = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
     try {
@@ -557,7 +608,7 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleRestore = async (entry) => {
+  const handleRestore = async (entry: AuditEntry) => {
     if (!entry.section || !entry.changes?.after || !confirm(`Restore ${entry.section} to this saved version?`)) return;
     try {
       const response = await fetch(`/api/content/${entry.section}/restore/${entry.id}`, {
@@ -585,7 +636,7 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleDeleteUpload = async (filename) => {
+  const handleDeleteUpload = async (filename: string) => {
     if (!confirm('Are you sure you want to delete this file?')) return;
 
     try {
@@ -605,9 +656,9 @@ const AdminDashboard = () => {
     }
   };
 
-  const renderLocalizedInputs = (item, index, field) => (
+  const renderLocalizedInputs = (item: EditorItem, index: number, field: string) => (
     <div className="grid gap-4 md:grid-cols-2">
-      {['es', 'en'].map((language) => (
+      {(['es', 'en'] as const).map((language) => (
         <div key={`${field}-${language}`}>
           <label className="mb-2 block text-sm font-medium text-gray-300">
             {getFieldLabel(field)} ({getFieldLabel(language)})
@@ -624,7 +675,7 @@ const AdminDashboard = () => {
   );
 
   const renderTechnologiesEditor = () => {
-    const items = content?.technologies?.items || [];
+    const items: string[] = Array.isArray(content?.technologies?.items) ? content.technologies.items : [];
 
     return (
       <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-5">
@@ -677,7 +728,7 @@ const AdminDashboard = () => {
   };
 
   const renderExperienceEditor = () => {
-    const items = Array.isArray(content?.experience) ? content.experience : [];
+    const items: Experience[] = Array.isArray(content?.experience) ? content.experience : [];
 
     return (
       <div className="space-y-5">
@@ -753,7 +804,7 @@ const AdminDashboard = () => {
                 )}
                 {renderLocalizedInputs(item, index, 'position')}
               <div className="grid gap-5 md:grid-cols-2">
-                {['es', 'en'].map((language) => (
+                {(['es', 'en'] as const).map((language) => (
                   <div key={`responsibilities-${language}`} className="space-y-3">
                     <div className="flex items-center justify-between gap-3">
                       <label className="block text-sm font-medium text-gray-300">
@@ -802,7 +853,7 @@ const AdminDashboard = () => {
   };
 
   const renderSocialEditor = () => {
-    const items = Array.isArray(content?.social) ? content.social : [];
+    const items: EditorItem[] = Array.isArray(content?.social) ? content.social : [];
 
     return (
       <div className="space-y-5">
@@ -877,8 +928,8 @@ const AdminDashboard = () => {
     );
   };
 
-  const renderSimpleLocalizedArrayEditor = (config) => {
-    const items = Array.isArray(content?.[activeTab]) ? content[activeTab] : [];
+  const renderSimpleLocalizedArrayEditor = (config: SimpleLocalizedEditorConfig) => {
+    const items: EditorItem[] = Array.isArray(content?.[activeTab]) ? content[activeTab] : [];
 
     return (
       <div className="space-y-5">
@@ -1064,7 +1115,7 @@ const AdminDashboard = () => {
 
           <div className="flex items-center gap-3">
             <label htmlFor="admin-language" className="sr-only">Panel language</label>
-            <select id="admin-language" value={adminLanguage} onChange={(event) => setAdminLanguage(event.target.value)} className="rounded-full border border-white/10 bg-gray-900 px-3 py-2 text-sm text-white focus:border-primary focus:outline-none">
+            <select id="admin-language" value={adminLanguage} onChange={(event) => setAdminLanguage(event.target.value as AdminLanguage)} className="rounded-full border border-white/10 bg-gray-900 px-3 py-2 text-sm text-white focus:border-primary focus:outline-none">
               <option value="es">ES</option>
               <option value="en">EN</option>
             </select>
@@ -1177,7 +1228,8 @@ const AdminDashboard = () => {
                       onCancel={() => setCroppingFile(null)}
                       onComplete={async (file) => {
                         setCroppingFile(null);
-                        await uploadFile(file, getUploadTarget('hero-photo'));
+                        const target = getUploadTarget('hero-photo');
+                        if (target) await uploadFile(file, target);
                       }}
                     />
                   )}
@@ -1189,7 +1241,7 @@ const AdminDashboard = () => {
                         </label>
                         <select
                           value={selectedUploadTarget}
-                          onChange={(e) => setSelectedUploadTarget(e.target.value)}
+                          onChange={(e) => setSelectedUploadTarget(e.target.value as UploadTargetValue)}
                           className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-primary transition-colors"
                         >
                           {uploadTargets.map((target) => (

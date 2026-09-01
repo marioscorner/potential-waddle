@@ -45,7 +45,7 @@ const image = suppliedImage || `${siteUrl}/MY_PHOTO.png`;
     {!noindex && <meta name="twitter:description" content={description} />}
     {!noindex && <meta name="twitter:image" content={image} />}
     {!noindex && <meta name="twitter:image:alt" content={title} />}
-    {schema && <script type="application/ld+json" set:html={schema} />}
+    {schema && <script is:inline type="application/ld+json" set:html={schema} />}
     <script is:inline>
       const savedTheme = localStorage.getItem('theme');
       document.documentElement.classList.toggle('light', savedTheme === 'light');

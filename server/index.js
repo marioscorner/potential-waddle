@@ -107,7 +107,7 @@ app.use('/admin/dashboard', (req, res, next) => {
 // Serve uploads directory
 app.use('/uploads', express.static(UPLOAD_DIR));
 
-const serveCv = (language) => async (req, res, next) => {
+const serveCv = (language) => async (_req, res, next) => {
   const fallbackFilename = `cv-${language}.pdf`;
   let uploadedPath = path.join(UPLOAD_DIR, fallbackFilename);
 
@@ -137,11 +137,11 @@ app.use('/api/content', contentRoutes);
 app.use('/api/uploads', uploadRoutes);
 
 // Health check
-app.get('/health', (req, res) => {
+app.get('/health', (_req, res) => {
   res.status(200).send('healthy\n');
 });
 
-app.use('/admin', (req, res, next) => {
+app.use('/admin', (_req, res, next) => {
   res.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
   next();
 });
@@ -156,7 +156,7 @@ app.use(express.static(clientPath, {
   },
 }));
 
-app.use('/api', (req, res) => res.status(404).json({ error: 'Not found' }));
+app.use('/api', (_req, res) => res.status(404).json({ error: 'Not found' }));
 app.use((req, res, next) => {
   if (!astroHandler) return next();
   return astroHandler(req, res, next);
@@ -174,7 +174,7 @@ app.use((req, res, next) => {
 });
 
 // Error handling
-app.use((err, req, res, next) => {
+app.use((err, _req, res, next) => {
   console.error('Error:', err);
   if (res.headersSent) return next(err);
   res.status(500).json({ error: 'Internal server error' });

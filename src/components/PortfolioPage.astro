@@ -25,6 +25,11 @@ import { getPortfolioData } from '@/lib/server/content';
 import { translations, type Language } from '@/lib/translations';
 
 type Props = { language: Language };
+type LocalizedText = Partial<Record<Language, string>>;
+type SocialLink = { name: string; url: string; icon: string };
+type LanguageEntry = { name?: LocalizedText; level?: LocalizedText };
+type Certification = { name?: LocalizedText; issuer?: LocalizedText };
+type UploadAsset = { url?: string; updated_at?: string; created_at?: string; slot?: string };
 const { language } = Astro.props;
 const t = translations[language];
 const { content, uploads } = await getPortfolioData();
@@ -35,15 +40,15 @@ const contact = content.contact?.[language] || t.contact;
 const featured = content.featured?.[language] || t.featured;
 const projects = content.projects?.[language] || t.projects;
 const meta = content.meta?.[language] || t.meta;
-const certifications = Array.isArray(content.certifications) ? content.certifications : [];
-const languages = Array.isArray(content.languages) ? content.languages : [];
+const certifications: Certification[] = Array.isArray(content.certifications) ? content.certifications : [];
+const languages: LanguageEntry[] = Array.isArray(content.languages) ? content.languages : [];
 const experiences = Array.isArray(content.experience) ? sortExperiences(content.experience) : [];
-const technologies = Array.isArray(content.technologies?.items) ? content.technologies.items : [];
-const socialLinks = Array.isArray(content.social) ? content.social : [];
+const technologies: string[] = Array.isArray(content.technologies?.items) ? content.technologies.items : [];
+const socialLinks: SocialLink[] = Array.isArray(content.social) ? content.social : [];
 const sectionTitles = content.sectionTitles?.[language] || {};
 const socialIcons = { FaLinkedin, FaGithub, FaInstagram, Globe2 };
 const photoUpload = uploads.find((upload) => upload.slot === 'hero-photo');
-const versionedUrl = (upload: any, fallback: string) => {
+const versionedUrl = (upload: UploadAsset | undefined, fallback: string) => {
   if (!upload?.url) return fallback;
   const cacheKey = upload.updated_at || upload.created_at;
   return `${upload.url}${cacheKey ? `?v=${encodeURIComponent(cacheKey)}` : ''}`;

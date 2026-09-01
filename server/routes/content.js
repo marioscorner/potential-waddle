@@ -115,7 +115,7 @@ const getValidationError = (section, data) => {
 
 // GET /api/content
 // Public route - get all content
-router.get('/', async (req, res) => {
+router.get('/', async (_req, res) => {
   try {
     const allContent = await getAllContent();
     const storedContent = Object.fromEntries(
@@ -143,7 +143,7 @@ router.get('/audit', requireAuth, async (req, res) => {
   }
 });
 
-router.get('/export', requireAuth, async (req, res) => {
+router.get('/export', requireAuth, async (_req, res) => {
   try {
     const allContent = await getAllContent();
     const content = Object.fromEntries(Object.entries(allContent).filter(([section]) => editableSections.has(section)));
@@ -260,7 +260,7 @@ router.post('/import', requireAuth, async (req, res) => {
 });
 
 // Seed default content on first run
-router.post('/seed', requireAuth, async (req, res) => {
+router.post('/seed', requireAuth, async (_req, res) => {
   try {
     for (const [key, value] of Object.entries(defaultContent)) {
       await setContent(key, value);

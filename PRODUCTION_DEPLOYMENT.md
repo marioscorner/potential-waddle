@@ -66,8 +66,10 @@ Copy the output to `SESSION_SECRET` in your `.env` file.
 
 On your production server:
 
-The Astro deployment starts with a new PostgreSQL database. If a final archive
-of the old database is required, create it before deleting the old volume:
+This runbook is prepared for the new stack but has not been exercised on the VPS. Validate the image and the complete container startup in a non-production environment before this step.
+
+The Astro deployment starts with the separate `marioscorner_postgres_data_v2`
+PostgreSQL volume. Archive the retired stack before stopping it:
 
 ```bash
 mkdir -p backups
@@ -76,15 +78,15 @@ tar -czf backups/uploads-before-astro.tar.gz uploads
 git rev-parse HEAD > backups/previous-commit.txt
 ```
 
-After confirming that the archive is readable, stop the old stack and remove
-its PostgreSQL volume. This operation is intentionally destructive and must not
-be run until the new-database decision is confirmed:
+After confirming that the archive is readable, stop the retired stack from its
+own project directory. Do not remove its volumes until the new deployment has
+been validated and its rollback window has closed:
 
 ```bash
-docker compose down --volumes
+docker compose down
 ```
 
-The next startup applies `001_initial_schema.sql` to an empty PostgreSQL volume.
+The next startup applies the versioned SQL migrations to the new empty PostgreSQL volume.
 Astro serves the bundled default content and assets until sections or uploads
 are changed through the admin interface.
 

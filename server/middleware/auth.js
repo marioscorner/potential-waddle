@@ -17,7 +17,7 @@ const requireAuth = (req, res, next) => {
   }
 };
 
-const optionalAuth = (req, res, next) => {
+const optionalAuth = (_req, _res, next) => {
   // Check if authenticated, but don't block if not
   next();
 };

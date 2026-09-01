@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type SubmitEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Lock, AlertCircle, Sparkles } from 'lucide-react';
 
@@ -8,7 +8,7 @@ const AdminLogin = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError('');

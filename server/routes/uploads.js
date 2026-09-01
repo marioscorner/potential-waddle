@@ -59,10 +59,10 @@ ensureUploadDir();
 
 // Configure multer - temporary storage before renaming
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
+  destination: (_req, _file, cb) => {
       cb(null, UPLOAD_DIR);
   },
-  filename: (req, file, cb) => {
+  filename: (_req, _file, cb) => {
     // Use a temporary name; we'll rename it properly after validation
     const timestamp = Date.now();
     const randomStr = Math.random().toString(36).substring(7);
@@ -72,7 +72,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage,
-  fileFilter: (req, file, cb) => {
+  fileFilter: (_req, file, cb) => {
     // Header validation is only an early filter; file signatures are verified after upload.
     const allowedMimes = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
     if (allowedMimes.includes(file.mimetype)) {
