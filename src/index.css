@@ -151,7 +151,9 @@
   .experience-entry time { color: hsl(var(--primary)); font-size: .72rem; font-weight: 700; line-height: 1.5; }
   .experience-company { margin: 0 0 .3rem; color: hsl(var(--muted-foreground)); font-size: .84rem; font-weight: 600; }
   .experience-entry h3 { margin: 0; font-size: clamp(1.15rem, 1.8vw, 1.5rem); letter-spacing: -.03em; }
-  .experience-entry ul { margin: .55rem 0 0; padding-left: 1rem; color: hsl(var(--muted-foreground)); font-size: .8rem; line-height: 1.45; }
+  .experience-entry ul { margin: .55rem 0 0; padding: 0; color: hsl(var(--muted-foreground)); font-size: .8rem; line-height: 1.45; }
+  .experience-entry li { position: relative; padding-left: 1rem; }
+  .experience-entry li::before { position: absolute; top: .55em; left: 0; width: .32rem; height: .32rem; background: hsl(var(--primary)); content: ""; }
   .experience-entry li + li { margin-top: .15rem; }
 
   .featured-section { position: relative; display: flex; flex-direction: column; justify-content: center; padding: clamp(1.75rem, 4vw, 3.5rem); border-bottom: 1px solid hsl(var(--border)); border-left: .28rem solid hsl(var(--primary)); background: hsl(var(--card) / .94); color: hsl(var(--foreground)); }
