@@ -130,19 +130,21 @@ const copy = language === 'es'
 
       <div class="portfolio-grid" id="profile-content">
         <aside class="profile-rail" aria-label={copy.index}>
-          <p class="eyebrow">{copy.index} / 01-05</p>
+          <p class="eyebrow">{copy.index} / 00-05</p>
           <nav class="profile-nav">
-            <a href="#about">01 <span>{about.title || t.about.title}</span></a>
-            <a href="#experience">02 <span>{sectionTitles.experience || t.techStack.experience}</span></a>
-            <a href="#project">03 <span>{copy.project}</span></a>
-            <a href="#notes">04 <span>{copy.notes}</span></a>
-            <a href="#contact">05 <span>{copy.contact}</span></a>
+            <a href="#intro" aria-controls="intro">00 <span>{language === 'es' ? 'Inicio' : 'Start'}</span></a>
+            <a href="#about" aria-controls="about">01 <span>{about.title || t.about.title}</span></a>
+            <a href="#experience" aria-controls="experience">02 <span>{sectionTitles.experience || t.techStack.experience}</span></a>
+            <a href="#project" aria-controls="project">03 <span>{copy.project}</span></a>
+            <a href="#notes" aria-controls="notes">04 <span>{copy.notes}</span></a>
+            <a href="#contact" aria-controls="contact">05 <span>{copy.contact}</span></a>
           </nav>
           <p class="rail-caption">{language === 'es' ? 'Madrid · disponible para construir lo que importa.' : 'Madrid · available to build what matters.'}</p>
         </aside>
 
-        <div class="portfolio-content">
-          <section class="hero-section reveal" aria-labelledby="profile-title">
+        <div class="portfolio-viewer" id="profile-content" tabindex="0" aria-label={language === 'es' ? 'Secciones del portfolio' : 'Portfolio sections'}>
+          <div class="portfolio-track">
+          <section class="hero-section viewer-panel" id="intro" data-panel aria-labelledby="profile-title">
             <div class="hero-copy">
               <p class="eyebrow">{sectionTitles.hero || status.status || copy.current} / {status.available}</p>
               <h1 id="profile-title">{hero.greeting}<br /><strong>{personName}</strong><br /><span>{hero.intro}</span></h1>
@@ -161,7 +163,7 @@ const copy = language === 'es'
             </figure>
           </section>
 
-          <section class="about-section reveal" id="about" aria-labelledby="about-title">
+          <section class="about-section viewer-panel" id="about" data-panel aria-labelledby="about-title">
             <div class="section-marker"><span>01</span><h2 id="about-title">{about.title || t.about.title}</h2></div>
             <div class="about-copy">
               <p class="about-lead">{about.paragraph1}</p>
@@ -170,7 +172,7 @@ const copy = language === 'es'
             </div>
           </section>
 
-          <section class="experience-section reveal" id="experience" aria-labelledby="experience-title">
+          <section class="experience-section viewer-panel" id="experience" data-panel aria-labelledby="experience-title">
             <div class="section-marker"><span>02</span><h2 id="experience-title">{sectionTitles.experience || t.techStack.experience}</h2></div>
             <div class="experience-list">
               {experiences.map((job) => (
@@ -190,7 +192,7 @@ const copy = language === 'es'
             </div>
           </section>
 
-          <section class="featured-section reveal" id="project" aria-labelledby="featured-project-title">
+          <section class="featured-section viewer-panel" id="project" data-panel aria-labelledby="featured-project-title">
             <div class="featured-heading">
               <p class="eyebrow">03 / {featured.title}</p>
               <span class="project-stamp">{featured.comingSoon || t.featured.comingSoon}</span>
@@ -208,7 +210,7 @@ const copy = language === 'es'
             </div>
           </section>
 
-          <section class="notes-section reveal" id="notes" aria-labelledby="notes-title">
+          <section class="notes-section viewer-panel" id="notes" data-panel aria-labelledby="notes-title">
             <div class="section-marker"><span>04</span><h2 id="notes-title">{copy.notes}</h2></div>
             <div class="notes-grid">
               <section class="note-block" aria-labelledby="technologies-title">
@@ -226,7 +228,7 @@ const copy = language === 'es'
             </div>
           </section>
 
-          <section class="contact-section reveal" id="contact" aria-labelledby="contact-title">
+          <section class="contact-section viewer-panel" id="contact" data-panel aria-labelledby="contact-title">
             <div class="contact-heading">
               <p class="eyebrow">05 / {copy.contact}</p>
               <h2 id="contact-title">{contact.title}</h2>
@@ -243,12 +245,13 @@ const copy = language === 'es'
               <p class="projects-note"><strong>{projects.title}</strong>{projects.description}</p>
             </div>
           </section>
+          </div>
         </div>
       </div>
 
       <footer class="portfolio-footer">
         <p>© {new Date().getFullYear()} · {content.footer?.[language]?.madeWith || t.footer.madeWith} <span>♥</span> {content.footer?.[language]?.by || t.footer.by} {content.footer?.[language]?.name || t.footer.name}</p>
-        <a href="#main-content">{language === 'es' ? 'Volver arriba' : 'Back to top'} <ArrowDownRight aria-hidden="true" /></a>
+        <a href="#intro">{language === 'es' ? 'Volver al inicio' : 'Back to start'} <ArrowDownRight aria-hidden="true" /></a>
       </footer>
     </div>
   </main>
@@ -262,5 +265,74 @@ const copy = language === 'es'
       document.querySelector('.theme-sun')?.classList.toggle('hidden', isLight);
       document.querySelector('.theme-moon')?.classList.toggle('hidden', !isLight);
     });
+
+    const viewer = document.querySelector<HTMLElement>('.portfolio-viewer');
+    const track = document.querySelector<HTMLElement>('.portfolio-track');
+    const panels = Array.from(document.querySelectorAll<HTMLElement>('[data-panel]'));
+    const navigation = Array.from(document.querySelectorAll<HTMLAnchorElement>('.profile-nav a'));
+    let activeIndex = 0;
+    let pointerStart: { x: number; y: number } | undefined;
+
+    const selectPanel = (id: string, updateHistory = false) => {
+      const nextIndex = panels.findIndex((panel) => panel.id === id);
+      if (nextIndex < 0 || !track) return;
+
+      activeIndex = nextIndex;
+      track.style.transform = `translateX(-${nextIndex * 100}%)`;
+      panels.forEach((panel, index) => {
+        const isActive = index === nextIndex;
+        panel.classList.toggle('panel-active', isActive);
+        panel.setAttribute('aria-hidden', String(!isActive));
+        panel.toggleAttribute('inert', !isActive);
+        if (isActive) panel.scrollTop = 0;
+      });
+      navigation.forEach((link) => link.toggleAttribute('aria-current', link.hash === `#${id}`));
+
+      if (updateHistory && window.location.hash !== `#${id}`) {
+        window.history.pushState(null, '', `#${id}`);
+      }
+    };
+
+    const selectRelativePanel = (direction: number) => {
+      const nextPanel = panels[activeIndex + direction];
+      if (nextPanel) selectPanel(nextPanel.id, true);
+    };
+
+    navigation.forEach((link) => {
+      link.addEventListener('click', (event) => {
+        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+        selectPanel(link.hash.slice(1), true);
+      });
+    });
+
+    viewer?.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowRight' || event.key === 'PageDown') {
+        event.preventDefault();
+        selectRelativePanel(1);
+      }
+      if (event.key === 'ArrowLeft' || event.key === 'PageUp') {
+        event.preventDefault();
+        selectRelativePanel(-1);
+      }
+    });
+
+    viewer?.addEventListener('pointerdown', (event) => {
+      pointerStart = { x: event.clientX, y: event.clientY };
+    });
+    viewer?.addEventListener('pointerup', (event) => {
+      if (!pointerStart) return;
+      const distanceX = event.clientX - pointerStart.x;
+      const distanceY = event.clientY - pointerStart.y;
+      pointerStart = undefined;
+      if (Math.abs(distanceX) < 48 || Math.abs(distanceX) <= Math.abs(distanceY)) return;
+      selectRelativePanel(distanceX < 0 ? 1 : -1);
+    });
+    viewer?.addEventListener('pointercancel', () => { pointerStart = undefined; });
+
+    const selectHashPanel = () => selectPanel(window.location.hash.slice(1) || 'intro');
+    window.addEventListener('hashchange', selectHashPanel);
+    window.addEventListener('popstate', selectHashPanel);
+    selectHashPanel();
   </script>
 </SiteLayout>

@@ -77,14 +77,15 @@
 
 @layer components {
   .portfolio-shell {
-    min-height: 100vh;
+    height: 100dvh;
     padding: 5.5rem 0 4.8rem;
+    overflow: hidden;
     background: hsl(var(--background));
     background-image: linear-gradient(hsl(var(--border) / 0.26) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--border) / 0.26) 1px, transparent 1px);
     background-size: 2.5rem 2.5rem;
   }
 
-  .portfolio-frame { width: 100%; margin: 0; }
+  .portfolio-frame { width: 100%; height: 100%; margin: 0; }
   .skip-link { position: fixed; top: 1rem; left: 1rem; z-index: 100; transform: translateY(-200%); background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); padding: .75rem 1rem; font-weight: 700; }
   .skip-link:focus { transform: translateY(0); }
 
@@ -100,15 +101,21 @@
   .utility-control svg { width: 1rem; height: 1rem; }
   .utility-control:hover { border-color: hsl(var(--primary)); color: hsl(var(--primary)); background: hsl(var(--primary) / .08); }
 
-  .portfolio-grid { display: grid; grid-template-columns: 12rem minmax(0, 1fr); border-bottom: 1px solid hsl(var(--border)); }
-  .profile-rail { display: flex; flex-direction: column; gap: 2rem; min-height: 100%; padding: 3rem 1.5rem 2rem 0; border-right: 1px solid hsl(var(--border)); }
+  .portfolio-grid { display: grid; grid-template-columns: 14rem minmax(0, 1fr); height: 100%; border-bottom: 1px solid hsl(var(--border)); }
+  .profile-rail { position: sticky; top: 0; display: flex; flex-direction: column; gap: 1.5rem; height: 100%; padding: 1.75rem 1.25rem; border-right: 1px solid hsl(var(--border)); background: hsl(var(--background) / .42); }
   .eyebrow { display: flex; align-items: center; gap: .5rem; margin: 0; color: hsl(var(--primary)); font-size: .7rem; font-weight: 700; letter-spacing: .11em; text-transform: uppercase; }
   .profile-nav { display: flex; flex-direction: column; border-top: 1px solid hsl(var(--border)); }
-  .profile-nav a { display: flex; gap: .65rem; padding: .75rem 0; border-bottom: 1px solid hsl(var(--border)); color: hsl(var(--muted-foreground)); font: .68rem ui-monospace, monospace; text-decoration: none; transition: color .2s, padding-left .2s; }
+  .profile-nav a { display: flex; gap: .65rem; padding: .75rem 0; border-bottom: 1px solid hsl(var(--border)); border-left: 2px solid transparent; color: hsl(var(--muted-foreground)); font: .68rem ui-monospace, monospace; text-decoration: none; transition: border-color .2s, color .2s, padding-left .2s; }
   .profile-nav a span { color: hsl(var(--foreground)); font-family: "DM Sans", system-ui, sans-serif; font-size: .8rem; }
-  .profile-nav a:hover { padding-left: .35rem; color: hsl(var(--primary)); }
+  .profile-nav a:hover, .profile-nav a[aria-current] { padding-left: .35rem; border-left-color: hsl(var(--primary)); color: hsl(var(--primary)); }
   .rail-caption { margin-top: auto; color: hsl(var(--muted-foreground)); font-size: .68rem; line-height: 1.7; }
-  .portfolio-content { min-width: 0; }
+  .portfolio-viewer { min-width: 0; height: 100%; overflow: hidden; touch-action: pan-y; }
+  .portfolio-viewer:focus-visible { outline: 2px solid hsl(var(--ring)); outline-offset: -4px; }
+  .portfolio-track { display: flex; height: 100%; transition: transform .58s cubic-bezier(.22, .8, .22, 1); will-change: transform; }
+  .viewer-panel { flex: 0 0 100%; width: 100%; height: 100%; min-width: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-color: hsl(var(--primary) / .6) transparent; scrollbar-width: thin; }
+  .viewer-panel::-webkit-scrollbar { width: .5rem; }
+  .viewer-panel::-webkit-scrollbar-thumb { border: 2px solid hsl(var(--background)); background: hsl(var(--primary) / .7); }
+  .viewer-panel.hero-section { min-height: 100%; }
 
   .hero-section { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(13rem, .7fr); gap: clamp(2rem, 6vw, 6rem); align-items: end; min-height: min(45rem, calc(100vh - 5.5rem)); padding: clamp(3rem, 8vw, 7rem) clamp(1.5rem, 5vw, 5rem); border-bottom: 1px solid hsl(var(--border)); }
   .live-dot { width: .55rem; height: .55rem; border-radius: 50%; box-shadow: 0 0 0 .3rem hsl(var(--primary) / .1); }
@@ -195,14 +202,7 @@
   .portfolio-footer a { display: inline-flex; align-items: center; gap: .3rem; color: hsl(var(--muted-foreground)); text-decoration: none; }
   .portfolio-footer a:hover { color: hsl(var(--primary)); }
   .portfolio-footer svg { width: .85rem; height: .85rem; transform: rotate(-45deg); }
-  .reveal { animation: reveal .65s both; }
-  .portfolio-content > .reveal:nth-child(2) { animation-delay: .08s; }
-  .portfolio-content > .reveal:nth-child(3) { animation-delay: .14s; }
-  .portfolio-content > .reveal:nth-child(4) { animation-delay: .2s; }
-  .portfolio-content > .reveal:nth-child(5) { animation-delay: .26s; }
 }
-
-@keyframes reveal { from { opacity: 0; transform: translateY(1rem); } to { opacity: 1; transform: translateY(0); } }
 
 @layer components {
   .admin-login, .admin-loading, .admin-shell {
@@ -269,8 +269,14 @@
 }
 
 @media (max-width: 900px) {
-  .portfolio-grid { display: block; }
-  .profile-rail { display: none; }
+  .portfolio-grid { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); }
+  .profile-rail { position: static; display: block; height: auto; min-height: 0; padding: .75rem 1rem; border-right: 0; border-bottom: 1px solid hsl(var(--border)); }
+  .profile-rail > .eyebrow, .rail-caption { display: none; }
+  .profile-nav { flex-direction: row; overflow-x: auto; border-top: 0; scrollbar-width: none; }
+  .profile-nav::-webkit-scrollbar { display: none; }
+  .profile-nav a { flex: 0 0 auto; padding: .5rem .7rem; border-bottom: 0; border-left: 1px solid hsl(var(--border)); white-space: nowrap; }
+  .profile-nav a:last-child { border-right: 1px solid hsl(var(--border)); }
+  .profile-nav a:hover, .profile-nav a[aria-current] { padding-left: .7rem; border-left-color: hsl(var(--primary)); background: hsl(var(--primary) / .08); }
   .hero-section { grid-template-columns: minmax(0, 1fr) minmax(11rem, .55fr); min-height: auto; }
   .about-section, .experience-section, .notes-section { grid-template-columns: 8rem minmax(0, 1fr); }
   .notes-grid { grid-template-columns: 1fr 1fr; }
