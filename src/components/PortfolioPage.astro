@@ -147,7 +147,6 @@ const copy = language === 'es'
             <div class="hero-copy">
               <h1 id="profile-title">{personName}<span>{hero.intro}</span></h1>
               <p class="hero-status"><span class="live-dot" style={`background-color: ${content.status?.indicatorColor || '#22c55e'}`}></span>{status.statusDetail}</p>
-              <p class="hero-intro">{hero.cta}</p>
               <div class="hero-actions">
                 <a href={`mailto:${contact.email}`} class="action-link action-link-primary"><Send aria-hidden="true" />{contact.sendEmail}<ArrowUpRight aria-hidden="true" /></a>
                 <a href={cvUrl} download class="action-link"><Download aria-hidden="true" />{hero.downloadCV}</a>

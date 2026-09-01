@@ -121,7 +121,6 @@
   .hero-copy h1 { max-width: 46rem; margin: 0; font-size: clamp(3rem, 8vw, 8rem); font-weight: 700; letter-spacing: -.085em; line-height: .86; }
   .hero-copy h1 span { display: block; margin-top: .32em; color: hsl(var(--primary)); font-size: .46em; font-weight: 500; letter-spacing: -.055em; line-height: 1; }
   .hero-status { display: flex; align-items: flex-start; gap: .65rem; max-width: 34rem; margin: 1.5rem 0 0; color: hsl(var(--muted-foreground)); font: .78rem ui-monospace, monospace; line-height: 1.6; }
-  .hero-intro { max-width: 40rem; margin: 1rem 0 0; color: hsl(var(--foreground)); font-size: clamp(.98rem, 1.25vw, 1.12rem); line-height: 1.55; }
   .hero-actions { display: flex; flex-wrap: wrap; gap: .7rem; margin-top: 1.5rem; }
   .action-link { display: inline-flex; align-items: center; justify-content: center; gap: .6rem; min-height: 2.85rem; padding: .65rem 1rem; border: 1px solid hsl(var(--border)); color: hsl(var(--foreground)); background: transparent; font-size: .87rem; font-weight: 600; text-decoration: none; transition: border-color .2s, background-color .2s, color .2s, transform .2s; }
   .action-link svg { width: 1rem; height: 1rem; }
