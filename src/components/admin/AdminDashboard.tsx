@@ -67,7 +67,7 @@ const navGroups: { label: Record<AdminLanguage, string>; tabs: Tab[] }[] = [
 const hiddenFieldsBySection: Partial<Record<Tab, string[]>> = {
   hero: ['greeting'],
   status: ['status', 'available'],
-  featured: ['title'],
+  featured: ['title', 'cta'],
   sectionTitles: ['hero', 'experience'],
 };
 

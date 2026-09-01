@@ -210,13 +210,12 @@ const copy = language === 'es'
               <span class="project-stamp">{featured.comingSoon || t.featured.comingSoon}</span>
             </div>
             <div class="featured-body">
-              <div>
+              <div class="featured-project-title">
                 <h2 id="featured-project-title">{featured.projectTitle}</h2>
+              </div>
+              <div class="featured-details">
                 <p>{featured.description}</p>
                 <p>{featured.description2}</p>
-              </div>
-              <div class="featured-action">
-                <p>{featured.cta}</p>
                 <a href={safeExternalUrl(content.featured?.url)} target="_blank" rel="noopener noreferrer" class="action-link">{featured.visitWeb}<ArrowUpRight aria-hidden="true" /></a>
               </div>
             </div>
