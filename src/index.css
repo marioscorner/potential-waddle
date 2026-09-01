@@ -184,7 +184,7 @@
   .contact-heading { min-width: 0; }
   .contact-heading h2 { max-width: 14ch; margin: 0; font-size: clamp(2rem, 4.1vw, 4.1rem); letter-spacing: -.07em; line-height: .98; overflow-wrap: anywhere; text-wrap: balance; }
   .contact-details { display: flex; flex-direction: column; justify-content: flex-end; gap: 2rem; }
-  .contact-email { display: inline-flex; align-items: center; justify-content: space-between; gap: 1rem; padding-bottom: .65rem; border-bottom: 2px solid hsl(var(--primary)); color: hsl(var(--foreground)); font-size: clamp(1.15rem, 2vw, 1.65rem); font-weight: 600; letter-spacing: -.04em; text-decoration: none; transition: color .2s; }
+  .contact-email { align-self: flex-start; display: inline-flex; align-items: center; justify-content: space-between; gap: 1rem; max-width: 100%; padding-bottom: .65rem; border-bottom: 2px solid hsl(var(--primary)); color: hsl(var(--foreground)); font-size: clamp(1.15rem, 2vw, 1.65rem); font-weight: 600; letter-spacing: -.04em; text-decoration: none; transition: color .2s; }
   .contact-email:hover { color: hsl(var(--primary)); }
   .contact-email svg { width: 1.2rem; flex: 0 0 auto; }
   .social-list { display: flex; flex-wrap: wrap; gap: .55rem; }
@@ -196,14 +196,16 @@
   .projects-note strong { display: block; margin-bottom: .2rem; color: hsl(var(--foreground)); font-size: .78rem; }
 
   @media (min-width: 901px) {
-    .experience-section { display: grid; grid-template-columns: minmax(14rem, .45fr) minmax(0, 1.55fr); align-items: start; gap: clamp(2rem, 5vw, 5rem); }
-    .experience-section > .section-display-title { margin: 0; }
+    .experience-section { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(14rem, .55fr); align-items: stretch; min-height: 100%; gap: clamp(2rem, 5vw, 5rem); }
+    .experience-section > .section-display-title { grid-column: 2; grid-row: 1; align-self: center; justify-self: end; margin: 0; }
+    .experience-content { grid-column: 1; grid-row: 1; display: flex; flex-direction: column; align-self: stretch; width: min(100%, 72rem); }
+    .experience-notes { margin-top: auto; }
     .contact-heading { order: 2; }
     .contact-details { order: 1; }
   }
 
   @media (min-width: 1440px) {
-    .experience-content, .featured-heading, .featured-body { width: min(100%, 104rem); margin-right: auto; margin-left: auto; }
+    .featured-heading, .featured-body { width: min(100%, 104rem); margin-right: auto; margin-left: auto; }
     .experience-section { width: min(100%, 104rem); margin-right: auto; margin-left: auto; }
     .experience-section > .section-display-title { width: auto; margin: 0; }
     .about-section, .contact-section { width: min(100%, 104rem); margin-right: auto; margin-left: auto; }
