@@ -100,8 +100,8 @@ const schema = JSON.stringify({
   ],
 }).replaceAll('<', '\\u003c');
 const copy = language === 'es'
-  ? { index: 'Índice', profile: 'Perfil profesional', current: 'Ahora', contact: 'Contacto', project: 'Proyecto' }
-  : { index: 'Index', profile: 'Professional profile', current: 'Now', contact: 'Contact', project: 'Project' };
+  ? { index: 'Índice', profile: 'Perfil profesional', contact: 'Contacto', project: 'Proyecto' }
+  : { index: 'Index', profile: 'Professional profile', contact: 'Contact', project: 'Project' };
 ---
 
 <SiteLayout language={language} title={meta.title} description={meta.description} schema={schema} image={absoluteHeroPhotoUrl}>
@@ -128,7 +128,7 @@ const copy = language === 'es'
         </div>
       </header>
 
-      <div class="portfolio-grid" id="profile-content">
+      <div class="portfolio-grid">
         <aside class="profile-rail" aria-label={copy.index}>
           <p class="eyebrow">{copy.index} / 00-04</p>
           <nav class="profile-nav">
@@ -145,34 +145,31 @@ const copy = language === 'es'
           <div class="portfolio-track">
           <section class="hero-section viewer-panel" id="intro" data-panel aria-labelledby="profile-title">
             <div class="hero-copy">
-              <p class="eyebrow">{sectionTitles.hero || status.status || copy.current} / {status.available}</p>
-              <h1 id="profile-title">{hero.greeting}<br /><strong>{personName}</strong><br /><span>{hero.intro}</span></h1>
-              <p class="hero-intro">{hero.cta}</p>
-              <p class="status-detail"><span class="live-dot" style={`background-color: ${content.status?.indicatorColor || '#22c55e'}`}></span>{status.statusDetail}</p>
+              <h1 id="profile-title">{personName}</h1>
+              <p class="hero-status"><span class="live-dot" style={`background-color: ${content.status?.indicatorColor || '#22c55e'}`}></span>{status.statusDetail}</p>
               <div class="hero-actions">
                 <a href={`mailto:${contact.email}`} class="action-link action-link-primary"><Send aria-hidden="true" />{contact.sendEmail}<ArrowUpRight aria-hidden="true" /></a>
                 <a href={cvUrl} download class="action-link"><Download aria-hidden="true" />{hero.downloadCV}</a>
               </div>
             </div>
-            <figure class="hero-portrait">
-              <div class="portrait-frame">
-                <img src={heroPhotoUrl} alt={language === 'es' ? `Foto de ${personName}` : `Photo of ${personName}`} width="512" height="512" fetchpriority="high" decoding="async" />
-              </div>
-              <figcaption><span>01</span> {language === 'es' ? 'Perfil de desarrollador' : 'Developer profile'}</figcaption>
-            </figure>
           </section>
 
           <section class="about-section viewer-panel" id="about" data-panel aria-labelledby="about-title">
-            <div class="section-marker"><span>01</span><h2 id="about-title">{about.title || t.about.title}</h2></div>
+            <h2 id="about-title" class="sr-only">{about.title || t.about.title}</h2>
             <div class="about-copy">
               <p class="about-lead">{about.paragraph1}</p>
               <p>{about.paragraphFullStack}</p>
               <p>{about.paragraph2}</p>
             </div>
+            <figure class="about-portrait">
+              <div class="portrait-frame">
+                <img src={heroPhotoUrl} alt={language === 'es' ? `Foto de ${personName}` : `Photo of ${personName}`} width="512" height="512" fetchpriority="high" decoding="async" />
+              </div>
+            </figure>
           </section>
 
           <section class="experience-section viewer-panel" id="experience" data-panel aria-labelledby="experience-title">
-            <div class="section-marker"><span>02</span><h2 id="experience-title">{copy.profile}</h2></div>
+            <h2 id="experience-title" class="sr-only">{copy.profile}</h2>
             <div class="experience-content">
               <div class="experience-list">
                 {experiences.map((job) => (
@@ -209,7 +206,6 @@ const copy = language === 'es'
 
           <section class="featured-section viewer-panel" id="project" data-panel aria-labelledby="featured-project-title">
             <div class="featured-heading">
-              <p class="eyebrow">03 / {featured.title}</p>
               <span class="project-stamp">{featured.comingSoon || t.featured.comingSoon}</span>
             </div>
             <div class="featured-body">
@@ -227,7 +223,6 @@ const copy = language === 'es'
 
           <section class="contact-section viewer-panel" id="contact" data-panel aria-labelledby="contact-title">
             <div class="contact-heading">
-              <p class="eyebrow">05 / {copy.contact}</p>
               <h2 id="contact-title">{contact.title}</h2>
             </div>
             <div class="contact-details">
