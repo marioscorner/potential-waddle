@@ -36,7 +36,12 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_20%_20%,rgba(255,71,147,0.22),transparent_28rem),radial-gradient(circle_at_80%_80%,rgba(255,255,255,0.08),transparent_22rem),#0d0d0f] px-4 py-10">
+    <div
+      className="flex min-h-screen items-center justify-center overflow-hidden bg-[#0d0d0f] px-4 py-10"
+      style={{
+        backgroundImage: 'radial-gradient(circle at 20% 20%, rgba(255, 71, 147, 0.22), transparent 28rem), radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.08), transparent 22rem)',
+      }}
+    >
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent" />
       <div className="w-full max-w-md">
         <div className="mb-6 text-center">

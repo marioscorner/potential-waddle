@@ -52,7 +52,7 @@ const image = suppliedImage || `${siteUrl}/MY_PHOTO.png`;
       document.documentElement.classList.toggle('dark', savedTheme !== 'light');
     </script>}
   </head>
-  <body>
+  <body style={noindex ? 'background-color: #0d0d0f;' : undefined}>
     <slot />
     {!noindex && <CookieNotice language={language} />}
   </body>
