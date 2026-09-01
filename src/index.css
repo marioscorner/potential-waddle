@@ -192,14 +192,12 @@
   .social-list a:hover { border-color: hsl(var(--primary)); color: hsl(var(--primary)); background: hsl(var(--primary) / .08); }
   .social-list svg { width: .85rem; height: .85rem; }
   .social-list svg:last-child { margin-left: .15rem; }
-  .projects-note { margin: 0; color: hsl(var(--muted-foreground)); font-size: .82rem; line-height: 1.65; }
-  .projects-note strong { display: block; margin-bottom: .2rem; color: hsl(var(--foreground)); font-size: .78rem; }
-
   @media (min-width: 901px) {
     .experience-section { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(14rem, .55fr); align-items: stretch; min-height: 100%; gap: clamp(2rem, 5vw, 5rem); }
     .experience-section > .section-display-title { grid-column: 2; grid-row: 1; align-self: center; justify-self: end; margin: 0; }
-    .experience-content { grid-column: 1; grid-row: 1; display: flex; flex-direction: column; align-self: stretch; width: min(100%, 72rem); }
-    .experience-notes { margin-top: auto; }
+    .experience-content { grid-column: 1; grid-row: 1; display: grid; grid-template-rows: minmax(min-content, 1fr) auto; align-self: stretch; width: min(100%, 72rem); }
+    .experience-list { display: grid; grid-auto-rows: minmax(min-content, 1fr); }
+    .experience-entry { align-items: center; }
     .contact-heading { order: 2; }
     .contact-details { order: 1; }
   }
@@ -219,7 +217,7 @@
     .experience-entry ul { font-size: .87rem; line-height: 1.5; }
     .note-title h3, .definition-list dt, .certification-list strong { font-size: .94rem; }
     .technology-list span { font-size: .83rem; }
-    .definition-list dd, .certification-list span, .projects-note { font-size: .85rem; }
+    .definition-list dd, .certification-list span { font-size: .85rem; }
     .featured-body p { font-size: 1.08rem; }
     .social-list a { font-size: .84rem; }
   }

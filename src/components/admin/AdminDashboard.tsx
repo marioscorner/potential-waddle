@@ -68,6 +68,7 @@ const hiddenFieldsBySection: Partial<Record<Tab, string[]>> = {
   hero: ['greeting'],
   status: ['status', 'available'],
   featured: ['title', 'cta'],
+  projects: ['title', 'description'],
   sectionTitles: ['hero', 'experience'],
 };
 
