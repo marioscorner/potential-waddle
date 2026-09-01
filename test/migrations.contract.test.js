@@ -4,9 +4,10 @@ import { applyMigrations, loadMigrations } from '../server/db/init.js';
 
 test('migration files are discovered in lexical order', async () => {
   const migrations = await loadMigrations();
-  assert.deepEqual(migrations.map((migration) => migration.name), ['001_initial_schema.sql', '002_upload_versions.sql']);
+  assert.deepEqual(migrations.map((migration) => migration.name), ['001_initial_schema.sql', '002_upload_versions.sql', '003_update_hero_slogan.sql']);
   assert.match(migrations[0].sql, /CREATE TABLE IF NOT EXISTS content/);
   assert.match(migrations[1].sql, /is_active BOOLEAN/);
+  assert.match(migrations[2].sql, /Turning today''s ideas/);
 });
 
 test('only pending migrations are applied and recorded transactionally', async () => {

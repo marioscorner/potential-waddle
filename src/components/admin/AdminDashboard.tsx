@@ -55,30 +55,46 @@ type SimpleLocalizedEditorConfig = {
   createItem: () => EditorItem;
 };
 
+const navGroups: { label: Record<AdminLanguage, string>; tabs: Tab[] }[] = [
+  { label: { es: 'Inicio', en: 'Start' }, tabs: ['hero', 'status'] },
+  { label: { es: 'Sobre mí', en: 'About me' }, tabs: ['about'] },
+  { label: { es: 'Perfil profesional', en: 'Professional profile' }, tabs: ['experience', 'technologies', 'languages', 'certifications', 'sectionTitles'] },
+  { label: { es: 'Proyecto', en: 'Project' }, tabs: ['featured'] },
+  { label: { es: 'Contacto', en: 'Contact' }, tabs: ['contact', 'social', 'projects', 'footer'] },
+  { label: { es: 'Administración', en: 'Administration' }, tabs: ['meta', 'uploads', 'activity'] },
+];
+
+const hiddenFieldsBySection: Partial<Record<Tab, string[]>> = {
+  hero: ['greeting', 'cta'],
+  status: ['status', 'available'],
+  featured: ['title'],
+  sectionTitles: ['hero', 'experience'],
+};
+
 const sectionLabels = {
-  hero: 'Hero',
-  about: 'About',
-  status: 'Status',
+  hero: 'Start',
+  about: 'About me',
+  status: 'Start: status',
   contact: 'Contact',
-  featured: 'Featured Project',
-  technologies: 'Technologies',
-  sectionTitles: 'Section titles',
-  experience: 'Experience',
-  certifications: 'Certifications',
-  languages: 'Languages',
-  projects: 'Projects',
-  social: 'Social Links',
+  featured: 'Project',
+  technologies: 'Professional profile: technologies',
+  sectionTitles: 'Professional profile: labels',
+  experience: 'Professional profile: experience',
+  certifications: 'Professional profile: certifications',
+  languages: 'Professional profile: languages',
+  projects: 'Contact: projects',
+  social: 'Contact: social links',
   meta: 'Search metadata',
-  footer: 'Footer',
+  footer: 'Rail credits',
   uploads: 'Uploads',
   activity: 'History & backups',
 };
 
 const sectionLabelsEs = {
-  hero: 'Inicio', about: 'Sobre mí', status: 'Estado', contact: 'Contacto', featured: 'Proyecto destacado',
-  technologies: 'Tecnologías', sectionTitles: 'Títulos de secciones', experience: 'Experiencia',
-  certifications: 'Certificaciones', languages: 'Idiomas', projects: 'Proyectos', social: 'Redes sociales',
-  meta: 'Metadatos de búsqueda', footer: 'Pie de página', uploads: 'Archivos', activity: 'Historial y copias',
+  hero: 'Inicio', about: 'Sobre mí', status: 'Inicio: estado', contact: 'Contacto', featured: 'Proyecto',
+  technologies: 'Perfil profesional: tecnologías', sectionTitles: 'Perfil profesional: etiquetas', experience: 'Perfil profesional: experiencia',
+  certifications: 'Perfil profesional: certificaciones', languages: 'Perfil profesional: idiomas', projects: 'Contacto: proyectos', social: 'Contacto: redes sociales',
+  meta: 'Metadatos de búsqueda', footer: 'Créditos laterales', uploads: 'Archivos', activity: 'Historial y copias',
 };
 
 const fieldLabels = {
@@ -1113,7 +1129,7 @@ const AdminDashboard = () => {
             <h1 className="admin-title">Admin Dashboard</h1>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="admin-topbar-actions flex items-center gap-3">
             <label htmlFor="admin-language" className="sr-only">Panel language</label>
             <select id="admin-language" value={adminLanguage} onChange={(event) => setAdminLanguage(event.target.value as AdminLanguage)} className="admin-select">
               <option value="es">ES</option>
@@ -1160,14 +1176,17 @@ const AdminDashboard = () => {
       <main id="admin-main" className="admin-main">
         <div className="admin-layout">
           {/* Sidebar Navigation */}
-          <div className="lg:col-span-1">
+          <div>
             <div className="admin-sidebar">
               <h2 className="admin-sidebar-title">
                 {copy.sections}
               </h2>
-              <nav className="admin-nav" aria-label={copy.sections}>
-                {tabs.map(
-                  (tab) => (
+              <nav aria-label={copy.sections}>
+                {navGroups.map((group) => (
+                  <section className="admin-nav-group" key={group.label.en} aria-label={group.label[adminLanguage]}>
+                    <h3 className="admin-nav-group-title">{group.label[adminLanguage]}</h3>
+                    <div className="admin-nav">
+                      {group.tabs.map((tab) => (
                     <button
                       key={tab}
                       onClick={() => handleTabChange(tab)}
@@ -1180,21 +1199,23 @@ const AdminDashboard = () => {
                     >
                       {getSectionLabel(tab, adminLanguage)}
                     </button>
-                  )
-                )}
+                      ))}
+                    </div>
+                  </section>
+                ))}
               </nav>
             </div>
           </div>
 
           {/* Content Editor */}
-          <div className="lg:col-span-3">
+          <div>
             <div className="admin-editor">
               <div className="admin-editor-header">
                 <div>
                   <p className="admin-kicker">{copy.editing}</p>
                   <h2 className="admin-editor-title">{getSectionLabel(activeTab, adminLanguage)}</h2>
                 </div>
-                <div className="flex flex-wrap items-center gap-2">
+                <div className="admin-editor-actions flex flex-wrap items-center gap-2">
                   <a href="/es/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm font-medium text-gray-200 hover:bg-white/10">
                     <Eye className="h-4 w-4" /> {copy.preview} ES
                   </a>
@@ -1343,7 +1364,7 @@ const AdminDashboard = () => {
                 <div className="space-y-5">
                   {renderGuidedEditor() || (activeTab === 'meta' ? renderMetaEditor() : content[activeTab] && typeof content[activeTab] === 'object' ? (
                     <div className="space-y-5">
-                      {Object.entries(content[activeTab]).map(([key, value]) => (
+                      {Object.entries(content[activeTab]).filter(([key]) => !hiddenFieldsBySection[activeTab]?.includes(key)).map(([key, value]) => (
                         <div key={key} className="rounded-2xl border border-white/10 bg-white/[0.035] p-5">
                           {key === 'indicatorColor' && typeof value === 'string' ? (
                             <div className="space-y-4">
@@ -1386,7 +1407,7 @@ const AdminDashboard = () => {
                                 <p className="text-sm text-gray-400">Edit this section's public copy without touching JSON.</p>
                               </div>
                               <div className="grid gap-4">
-                                {Object.entries(value).map(([nestedKey, nestedValue]) => (
+                                 {Object.entries(value).filter(([nestedKey]) => !hiddenFieldsBySection[activeTab]?.includes(nestedKey)).map(([nestedKey, nestedValue]) => (
                                   <div key={nestedKey}>
                                     <label className="mb-2 block text-sm font-medium text-gray-300">
                                       {getFieldLabel(nestedKey)}
