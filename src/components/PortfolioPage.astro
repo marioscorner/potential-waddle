@@ -108,24 +108,23 @@ const copy = language === 'es'
     <a class="skip-link" href="#profile-content">{language === 'es' ? 'Saltar al contenido' : 'Skip to content'}</a>
 
     <div class="portfolio-frame">
-      <div class="topbar-controls" aria-label={language === 'es' ? 'Controles de sitio' : 'Site controls'}>
-        <a
-          href={language === 'es' ? '/en/' : '/es/'}
-          class="utility-control language-control"
-          aria-label={language === 'es' ? 'Switch to English' : 'Cambiar a Español'}
-        >
-          <Globe2 aria-hidden="true" />
-          <span>{language === 'es' ? 'EN' : 'ES'}</span>
-        </a>
-        <button id="theme-toggle" class="utility-control" aria-label={language === 'es' ? 'Cambiar tema' : 'Toggle theme'} type="button">
-          <Sun className="theme-sun" aria-hidden="true" />
-          <Moon className="theme-moon hidden" aria-hidden="true" />
-        </button>
-      </div>
-
       <div class="portfolio-grid">
         <aside class="profile-rail" aria-label={copy.index}>
           <a class="wordmark" href={`/${language}/`} aria-label="marioscorner home">marioscorner<span>.</span></a>
+          <div class="topbar-controls" aria-label={language === 'es' ? 'Controles de sitio' : 'Site controls'}>
+            <a
+              href={language === 'es' ? '/en/' : '/es/'}
+              class="utility-control language-control"
+              aria-label={language === 'es' ? 'Switch to English' : 'Cambiar a Español'}
+            >
+              <Globe2 aria-hidden="true" />
+              <span>{language === 'es' ? 'EN' : 'ES'}</span>
+            </a>
+            <button id="theme-toggle" class="utility-control" aria-label={language === 'es' ? 'Cambiar tema' : 'Toggle theme'} type="button">
+              <Sun className="theme-sun" aria-hidden="true" />
+              <Moon className="theme-moon hidden" aria-hidden="true" />
+            </button>
+          </div>
           <p class="eyebrow">{copy.index} / 00-04</p>
           <nav class="profile-nav">
             <a href="#intro" aria-controls="intro">00 <span>{language === 'es' ? 'Inicio' : 'Start'}</span></a>
@@ -137,7 +136,6 @@ const copy = language === 'es'
           <div class="rail-meta">
             <p class="rail-location"><MapPin aria-hidden="true" />{contact.location}</p>
             <p class="rail-caption"><span class="live-dot" style={`background-color: ${content.status?.indicatorColor || '#22c55e'}`}></span>{status.statusDetail}</p>
-            <p class="rail-credit">© {new Date().getFullYear()} · {content.footer?.[language]?.madeWith || t.footer.madeWith} <span>♥</span> {content.footer?.[language]?.by || t.footer.by} {content.footer?.[language]?.name || t.footer.name}</p>
           </div>
         </aside>
 
